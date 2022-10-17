@@ -1,0 +1,3 @@
+[submodule "xslt-relax-ng"]
+	path = xslt-relax-ng
+	url = github:ndw/xslt-relax-ng.git
