@@ -116,7 +116,7 @@
 (setq-default cursor-type 'bar)
 ;; faces / fonts
 (when (display-graphic-p)
-  (setq pmw/default-font "Hack")
+  (setq pmw/default-font "Source Code Pro")
   (when platform-macos-p
     (setq pmw/variable-pitch-font "Trebuchet MS"))
   (when platform-linux-x-p

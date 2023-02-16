@@ -10,21 +10,27 @@
 )
 
 (defun pmw/proxy-on ()
-  "Set SRN proxies"
+  "Set ORNL proxies"
   (interactive)
-  (setq url-proxy-services '(("no_proxy" . "sandia\\.gov")
-			     ("http" . "nouser:nopass@proxy.sandia.gov:80")
-			     ("https" . "nouser:nopass@proxy.sandia.gov:80")))
-  (message "%s" "URL proxies set for SRN."))
+;  (setq url-proxy-services '(("no_proxy" . "sandia\\.gov")
+;			     ("http" . "nouser:nopass@proxy.sandia.gov:80")
+					;			     ("https" . "nouser:nopass@proxy.sandia.gov:80")))
+  (setenv "GIT_SSH_COMMAND" "ssh -o ProxyCommand='nc -X connect -x snowman.ornl.gov:3128 %h %p'")
+  (message "%s" "SSH proxy set for ORNL."))
 
 (defun pmw/proxy-off ()
-  "Un-set SRN proxies"
+  "Un-set ORNL proxies"
   (interactive)
-  (setq url-proxy-services nil)
+					;  (setq url-proxy-services nil)
+  (setenv "GIT_SSH_COMMAND" nil)
+  
   (message "%s" "Proxies un-set."))
 
 ;;
-;; If we are on the SRN (IPv4 addr begins with 134.253), set URL proxies
+;; NOW AT ORNL:
+;; If we are on the ORNL network (IPv4 addr appears to be x.x.x.x), set proxy information
+;;
+;; PREVIOUSLY If we are on the SRN (IPv4 addr begins with 134.253), set URL proxies
 ;;
 ;; UPDATE Feb 2021: whatever was broken in (network-interface-list) and/or macOS has apparently
 ;; been fixed, so I reverted the definition of get-ip-address away from the ifconfig
