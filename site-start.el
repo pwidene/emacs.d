@@ -114,4 +114,4 @@
 (global-set-key (kbd "C-x C-r") 'pmw/find-alternative-file-with-sudo)
 
 ;;; for laptop and anything that might move
-(pmw/proxy-check)
+;;; (pmw/proxy-check)
