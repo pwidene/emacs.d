@@ -12,16 +12,16 @@
 (defun pmw/proxy-on ()
   "Set ORNL proxies"
   (interactive)
-;  (setq url-proxy-services '(("no_proxy" . "sandia\\.gov")
-;			     ("http" . "nouser:nopass@proxy.sandia.gov:80")
-					;			     ("https" . "nouser:nopass@proxy.sandia.gov:80")))
+  (setq url-proxy-services '(("no_proxy" . "ornl\\.gov")
+			     ("http" . "snowman.ornl.gov:3128")
+			     ("https" . "snowman.ornl.gov:3128")))
   (setenv "GIT_SSH_COMMAND" "ssh -o ProxyCommand='nc -X connect -x snowman.ornl.gov:3128 %h %p'")
   (message "%s" "SSH proxy set for ORNL."))
 
 (defun pmw/proxy-off ()
   "Un-set ORNL proxies"
   (interactive)
-					;  (setq url-proxy-services nil)
+  (setq url-proxy-services nil)
   (setenv "GIT_SSH_COMMAND" nil)
   
   (message "%s" "Proxies un-set."))
