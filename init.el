@@ -112,6 +112,10 @@
  inhibit-startup-message t
  scroll-step 1
  auto-window-vscroll nil
+ ;;
+ ;; fix for weird emacs 28.2 / Apple compiler issue
+ native-comp-driver-options (when (eq system-type 'darwin) '("-Wl,-w"))
+ 
  )
 (setq-default cursor-type 'bar)
 ;; faces / fonts
@@ -170,15 +174,28 @@
   (rainbow-x-colors nil)
   :hook prog-mode
   )
-	 
+
+(use-package bibtex
+  :custom
+  (bibtex-dialect 'biblatex)
+  )
+
+(use-package auctex
+  :custom
+  (TeX-auto-save t)
+  (TeX-parse-self t)
+  :config
+  (setq-default TeX-master nil)
+  :hook (LaTeX-mode . (lambda ()
+			(auto-fill-mode)
+			'turn-on-reftex
+			(visual-line-mode)
+			(set-fill-column 105)))
+  
+  )
+
 (use-package auctex-latexmk
   :requires auctex
-  :config
-  (add-hook 'LaTeX-mode-hook (lambda () 
-			       (auto-fill-mode)
-			       (reftex-mode)
-			       (visual-line-mode)
-			       (set-fill-column 105)))
   )
 
 
@@ -227,7 +244,7 @@
      ("r" ivy--rename-buffer-action "rename")))
   (ivy-mode 1)
   )
-     
+
 
 (use-package ivy-posframe
   :after (ivy counsel swiper)
@@ -249,7 +266,9 @@
   (minimap-window-location 'right)
   )
 
-(use-package all-the-icons )
+(use-package all-the-icons
+  :if (display-graphic-p)
+  )
 
 (use-package centaur-tabs
   :disabled t
@@ -766,6 +785,41 @@
   (org-icalendar-include-todo "all")
   (org-icalendar-combined-agenda-file "~/org-journal.ics")
   )
+
+(use-package tablist)
+
+(use-package pdf-tools
+  :after (tablist)
+  :config
+  (pdf-loader-install)
+  )
+
+(use-package biblio
+  :custom
+  (biblio-crossref-user-email-address "widenerpm@ornl.gov")
+  )
+(use-package vertico)
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion))))
+  )
+(use-package embark)
+(use-package marginalia)
+(use-package citar
+  :custom
+  (citar-bibliography '("~/work/bib/references.bib" "~/Documents/cv/pubs/pubs.bib"))
+  :hook
+  (LaTeX-mode . citar-capf-setup)
+  (org-mode . citar-capf-setup)
+  )
+(use-package citar-embark
+  :after citar embark
+  :no-require
+  :config (citar-embark-mode)
+  )
+(use-package org-noter)
 
 (use-package htmlize
   :custom
