@@ -107,48 +107,52 @@
 	    (if (display-graphic-p)
 		(unless (server-running-p)
 		  (server-start)))))
-(setq
- inhibit-splash-screen t
- inhibit-startup-message t
- scroll-step 1
- auto-window-vscroll nil
- ;;
- ;; fix for weird emacs 28.2 / Apple compiler issue
- native-comp-driver-options (when (eq system-type 'darwin) '("-Wl,-w"))
- 
- )
-(setq-default cursor-type 'bar)
-;; faces / fonts
-(when (display-graphic-p)
-  (setq pmw/default-font "Source Code Pro")
-  (when platform-macos-p
-    (setq pmw/variable-pitch-font "Trebuchet MS"))
-  (when platform-linux-x-p
-    (setq pmw/variable-pitch-font "DejaVu Sans"))
-  
-  (set-face-attribute 'default nil
-		      :family pmw/default-font
-		      :height (if (<= (display-pixel-width) 2000) 100 120)
-		      :weight 'regular)
-  (set-face-attribute 'variable-pitch nil
-		      :family (when (member pmw/variable-pitch-font (font-family-list)) pmw/variable-pitch-font)
-		      :weight 'regular)
-  (set-face-attribute 'fixed-pitch nil
-		      :family pmw/default-font
-		      :weight 'regular)
-
-  (use-package sublime-themes )
-  (use-package cyberpunk-theme )
-  (use-package color-theme-modern 
-    :config
-    (load-theme 'cyberpunk t)
-    )
-  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Everything from here on should be some form of use-package invocation
 ;;;
+
+(use-package emacs
+  :init
+  (setq inhibit-splash-screen t
+	inhibit-startup-message t
+	scroll-step 1
+	auto-window-vscroll nil
+        ;;
+        ;; fix for weird emacs 28.2 / Apple compiler issue
+	native-comp-driver-options (when (eq system-type 'darwin) '("-Wl,-w"))
+	)
+  (setq-default cursor-type 'bar)
+  ;; faces / fonts
+  (when (display-graphic-p)
+    (setq pmw/default-font "Source Code Pro")
+    (when platform-macos-p
+      (setq pmw/variable-pitch-font "Trebuchet MS"))
+    (when platform-linux-x-p
+      (setq pmw/variable-pitch-font "DejaVu Sans"))
+  
+    (set-face-attribute 'default nil
+			:family pmw/default-font
+			:height (if (<= (display-pixel-width) 2000) 100 120)
+			:weight 'regular)
+    (set-face-attribute 'variable-pitch nil
+			:family (when (member pmw/variable-pitch-font (font-family-list)) pmw/variable-pitch-font)
+			:weight 'regular)
+    (set-face-attribute 'fixed-pitch nil
+			:family pmw/default-font
+			:weight 'regular)
+    )
+  )
+
+(use-package sublime-themes )
+(use-package cyberpunk-theme )
+(use-package color-theme-modern 
+  :config
+  (load-theme 'cyberpunk t)
+  )
+
+
 
 (use-package cursor-chg
   :config
@@ -279,6 +283,32 @@
   )
 (use-package embark)
 (use-package marginalia)
+
+(use-package corfu
+  ;; Optional customizations
+  ;; :custom
+  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  ;; (corfu-auto t)                 ;; Enable auto completion
+  ;; (corfu-separator ?\s)          ;; Orderless field separator
+  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+  ;; Enable Corfu only for certain modes.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+  ;; be used globally (M-/).  See also the customization variable
+  ;; `global-corfu-modes' to exclude certain modes.
+  :init
+  (global-corfu-mode)
+  )
+
 
 (use-package spacious-padding
   :custom
