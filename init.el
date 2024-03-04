@@ -180,7 +180,8 @@
   (bibtex-dialect 'biblatex)
   )
 
-(use-package auctex
+(use-package tex
+  :straight auctex
   :custom
   (TeX-auto-save t)
   (TeX-parse-self t)
@@ -215,9 +216,10 @@
 
 (use-package multiple-cursors )
 
-(use-package counsel )
-(use-package swiper )
+;;(use-package counsel )
+;;(use-package swiper )
 (use-package ivy
+  :disabled t
   :after (counsel swiper)
   
   :custom
@@ -247,6 +249,7 @@
 
 
 (use-package ivy-posframe
+  :disabled t
   :after (ivy counsel swiper)
   
   :custom
@@ -257,6 +260,42 @@
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
   :config
   (ivy-posframe-mode 1)
+  )
+
+(use-package vertico)
+(use-package vertico-posframe
+  :after (vertico posframe)
+  :custom
+  (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
+  :config
+  (vertico-posframe-mode 1)
+  )
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (matching-styles '(orderless flex))
+  (completion-category-overrides '((file (styles basic partial-completion))))
+  )
+(use-package embark)
+(use-package marginalia)
+
+(use-package spacious-padding
+  :custom
+  (spacious-padding-subtle-mode-line
+   `( :mode-line-active 'default
+      :mode-line-inactive vertical-border))
+  ;; these are default values from the package documentation
+  (spacious-padding-widths
+   `( :internal-border-width 15
+      :header-line-width 4
+      :mode-line-width 4
+      :tab-width 4
+      :right-divider-width 30
+      :scroll-bar-width 8
+      :fringe-width 8))
+  :config
+  (spacious-padding-mode 1)
   )
 
 
@@ -360,64 +399,17 @@
   :disabled t
   )
 
-(use-package perspective
-  :disabled t
+
+(use-package persp-mode
   :custom
+  (persp-autokill-buffer-on-remove 'kill-weak)
   (persp-state-default-file (concat user-emacs-directory (convert-standard-filename ".emacs-perspective-save")))
-  :config
-  (persp-mode)
-  (persp-state-load persp-state-default-file)
   :hook
-  (kill-emacs . persp-state-save)
-  )
-   
+  (window-setup-hook . (lambda () (persp-mode 1)))
+  ;(kill-emacs . persp-state-save)
+)  
 
-;; projectile
-(use-package flx )
-(use-package neotree
-  :disabled t
-  :after projectile
-  :custom
-  (projectile-switch-project-action 'neotree-projectile-action)
-  )
-		   
-(use-package projectile
-  
-  :custom
-  (projectile-completion-system 'ivy)
-  (projectile-enable-caching t)
-  :bind-keymap
-  (("C-c p" . projectile-command-map)
-   ("s-p" . projectile-command-map))
-  :config
-  (projectile-mode +1)
-  )
 
-(use-package persp-projectile
-  
-  :after (projectile perspective)
-  )
-
-(use-package nameframe-perspective
-  :disabled t
-  :after (nameframe perspective)
-  :config
-  (nameframe-perspective-mode t)
-  )
-(use-package nameframe-projectile
-  :disabled t
-  :after (nameframe projectile)
-  :config
-  (nameframe-projectile-mode t)
-  )
-
-(use-package speedbar
-  :disabled t
-  )
-(use-package projectile-speedbar
-  
-  :disabled t
-  )
 
 (use-package shell-pop
   
@@ -433,8 +425,6 @@
   
   
 (use-package treemacs
-  
-  
   :init
   (with-eval-after-load 'winum
     (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
@@ -504,10 +494,6 @@
 
 (use-package treemacs-evil
   :after treemacs evil
-  )
-
-(use-package treemacs-projectile
-  :after treemacs projectile
   )
 
 (use-package treemacs-icons-dired
@@ -602,13 +588,13 @@
   )
 
 (use-package org-bullets
-  :disabled t
+  :disabled f
   :after org
   :hook (org-mode . (lambda () (org-bullets-mode 1)))
   )
 
 (use-package org-super-agenda
-:disabled t
+:disabled f
   :custom
   (org-super-agenda-groups
    '(
@@ -623,7 +609,7 @@
      )))
 			   
 (use-package org
-  :disabled t
+  :disabled f
   :after (epa-file org-super-agenda)
   :bind
   ("C-c a" . org-agenda)
@@ -779,7 +765,7 @@
     (goto-char (point-max))))
 
 (use-package org-journal
-  :disabled t
+  :disabled f
   :custom
   (org-icalendar-store-UID t)
   (org-icalendar-include-todo "all")
@@ -798,15 +784,6 @@
   :custom
   (biblio-crossref-user-email-address "widenerpm@ornl.gov")
   )
-(use-package vertico)
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion))))
-  )
-(use-package embark)
-(use-package marginalia)
 (use-package citar
   :custom
   (citar-bibliography '("~/work/bib/references.bib" "~/Documents/cv/pubs/pubs.bib"))
