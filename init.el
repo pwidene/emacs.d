@@ -193,6 +193,7 @@
   (setq-default TeX-master nil)
   :hook (LaTeX-mode . (lambda ()
 			(auto-fill-mode)
+			(setq TeX-command-default "Latexmk")
 			'turn-on-reftex
 			(visual-line-mode)
 			(set-fill-column 105)))
