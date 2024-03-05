@@ -427,8 +427,8 @@
   (persp-autokill-buffer-on-remove 'kill-weak)
   (persp-state-default-file (concat user-emacs-directory (convert-standard-filename ".emacs-perspective-save")))
   :hook
-  (window-setup-hook . (lambda () (persp-mode 1)))
-  ;(kill-emacs . persp-state-save)
+  (emacs-startup . (lambda () (persp-mode 1)))
+  (kill-emacs . persp-state-save)
 )  
 
 
@@ -589,6 +589,13 @@
   :mode "\\.hs\\'")
 (use-package web-mode
   :mode ("\\.\\(html\\|htm\\)\\'" . wevb-mode))
+
+(use-package rustic
+  :straight (:host github :repo "brotzeit/rustic")
+  :mode 
+  ("\\.\\(rs\\|rust\\)$" . rust-mode)
+
+  )
 
 (use-package deft
   :disabled t
