@@ -7,16 +7,12 @@
   ;; map RH Option key to Super prefix (s-<key>)
   (setq ns-right-option-modifier 'super)
   (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
-)
+  )
 
 ;; faces / fonts
 (when (display-graphic-p)
   (setq pmw/default-font "Source Code Pro")
-  (when platform-macos-p
-    (setq pmw/variable-pitch-font "Trebuchet MS"))
-  (when platform-linux-x-p
-    (setq pmw/variable-pitch-font "DejaVu Sans"))
-
+  (setq pmw/variable-pitch-font "DejaVu Sans")
   (setq pmw/default-font-height 80) ;; (if (<= (display-pixel-width) 2500) 100 120))
   )
 
