@@ -12,11 +12,7 @@
 ;; faces / fonts
 (when (display-graphic-p)
   (setq pmw/default-font "Source Code Pro")
-  (when platform-macos-p
-    (setq pmw/variable-pitch-font "Trebuchet MS"))
-  (when platform-linux-x-p
-    (setq pmw/variable-pitch-font "DejaVu Sans"))
-
+  (setq pmw/variable-pitch-font "Trebuchet MS")
   (setq pmw/default-font-height (if (<= (display-pixel-width) 2500) 100 120))
   )
 
