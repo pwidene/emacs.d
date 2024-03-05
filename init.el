@@ -124,25 +124,16 @@
 	native-comp-driver-options (when (eq system-type 'darwin) '("-Wl,-w"))
 	)
   (setq-default cursor-type 'bar)
-  ;; faces / fonts
-  (when (display-graphic-p)
-    (setq pmw/default-font "Source Code Pro")
-    (when platform-macos-p
-      (setq pmw/variable-pitch-font "Trebuchet MS"))
-    (when platform-linux-x-p
-      (setq pmw/variable-pitch-font "DejaVu Sans"))
-  
-    (set-face-attribute 'default nil
-			:family pmw/default-font
-			:height (if (<= (display-pixel-width) 2000) 100 120)
-			:weight 'regular)
-    (set-face-attribute 'variable-pitch nil
-			:family (when (member pmw/variable-pitch-font (font-family-list)) pmw/variable-pitch-font)
-			:weight 'regular)
-    (set-face-attribute 'fixed-pitch nil
-			:family pmw/default-font
-			:weight 'regular)
-    )
+  (set-face-attribute 'default nil
+		      :family pmw/default-font
+		      :height pmw/default-font-height
+		      :weight 'regular)
+  (set-face-attribute 'variable-pitch nil
+		      :family (when (member pmw/variable-pitch-font (font-family-list)) pmw/variable-pitch-font)
+		      :weight 'regular)
+  (set-face-attribute 'fixed-pitch nil
+		      :family pmw/default-font
+		      :weight 'regular)
   )
 
 (use-package sublime-themes )
