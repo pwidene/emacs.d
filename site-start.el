@@ -17,7 +17,7 @@
   (when platform-linux-x-p
     (setq pmw/variable-pitch-font "DejaVu Sans"))
 
-  (setq pmw/default-font-height (if (<= (display-pixel-width) 2500) 100 120))
+  (setq pmw/default-font-height 80) ;; (if (<= (display-pixel-width) 2500) 100 120))
   )
 
 (defun pmw/proxy-on ()
