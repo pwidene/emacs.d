@@ -277,14 +277,14 @@
 
 (use-package corfu
   ;; Optional customizations
-  ;; :custom
-  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   ;; (corfu-auto t)                 ;; Enable auto completion
   ;; (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+  (corfu-preselect 'prompt)      ;; Preselect the prompt
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
 
@@ -296,10 +296,26 @@
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
   ;; be used globally (M-/).  See also the customization variable
   ;; `global-corfu-modes' to exclude certain modes.
+  :bind
+  (:map corfu-map
+	("TAB" . corfu-next)
+	([tab] . corfu-next)
+	("S-TAB" . corfu-previous)
+	([backtab] . corfu-previous))
   :init
+;  (setq completion-cycle-threshold 4)
+ ; (setq tab-always-indent 'complete)
+  :config
   (global-corfu-mode)
   )
 
+(use-package corfu-terminal
+  :after (corfu)
+  :straight (:type git :host nil :repo "https://codeberg.org/akib/emacs-corfu-terminal.git")
+  :config
+  (unless (display-graphic-p)
+    (corfu-terminal-mode +1))
+  )
 
 (use-package spacious-padding
   :custom
