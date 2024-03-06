@@ -70,7 +70,7 @@
   "Check for SRN IP address and set proxies appropriately if found"
   (interactive)
   ;; 134.253.x.x is SRN, 10.208.x.x is NM VPN
-  (when (string-match "134\.253" (pmw/get-ip-address))
+  (when (and (pmw/get-ip-address) (string-match "134\.253" (pmw/get-ip-address)))
     (pmw/proxy-on)))
 
 ;;  (catch 'found
