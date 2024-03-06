@@ -442,7 +442,7 @@
   (persp-autokill-buffer-on-remove 'kill-weak)
   (persp-state-default-file (concat user-emacs-directory (convert-standard-filename ".emacs-perspective-save")))
   :hook
-  (window-setup-hook . (lambda () (persp-mode 1)))
+  (window-setup . (lambda () (persp-mode 1)))
   ;(kill-emacs . persp-state-save)
 )  
 
