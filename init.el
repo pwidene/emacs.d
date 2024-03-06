@@ -99,14 +99,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some useful constants
 ;; init that should precede most packages
-(defalias 'yes-or-no-p 'y-or-n-p)
-(tool-bar-mode -1)
-(add-hook 'after-init-hook
-	  (lambda ()
-	    (require 'server)
-	    (if (display-graphic-p)
-		(unless (server-running-p)
-		  (server-start)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -124,6 +116,16 @@
 	native-comp-driver-options (when (eq system-type 'darwin) '("-Wl,-w"))
 	)
   (setq-default cursor-type 'bar)
+
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (tool-bar-mode -1)
+  (add-hook 'after-init-hook
+	    (lambda ()
+	      (require 'server)
+	      (if (display-graphic-p)
+		  (unless (server-running-p)
+		    (server-start)))))
+  ;;
   (set-face-attribute 'default nil
 		      :family pmw/default-font
 		      :height pmw/default-font-height
