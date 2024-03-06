@@ -335,6 +335,10 @@
   (spacious-padding-mode 1)
   )
 
+(use-package vterm
+  :disabled t
+  :ensure t)
+
 
 ;; minimap
 (use-package minimap
