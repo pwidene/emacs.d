@@ -619,13 +619,14 @@
   )
 
 (use-package org-bullets
-  :disabled f
+  :disabled t
   :after org
   :hook (org-mode . (lambda () (org-bullets-mode 1)))
   )
 
 (use-package org-super-agenda
-:disabled f
+  :disabled f
+  :after org
   :custom
   (org-super-agenda-groups
    '(
@@ -731,7 +732,8 @@
   )
 
 (use-package org-roam
-  :disabled t
+  :disabled f
+  :after org
   :hook
   ((after-init . org-roam-setup)
    (org-roam-backlinks-mode . visual-line-mode))
@@ -749,9 +751,10 @@
 	      (("C-c n I" . org-roam-insert-immediate))))
 
 (use-package org-roam-ui
-  :disabled t
+  :disabled f
   :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
   :requires org-mode
+  :after org-roam
   ;;:hook (after-init . org-roam-ui-mode)
   :custom
   (org-roam-ui-sync-theme t)
@@ -761,7 +764,8 @@
   )
 
 (use-package org-roam-server
-  :disabled t
+  :disabled f
+  :after org-roam
   :custom
   (org-roam-server-host "127.0.0.1")
   (org-roam-server-port 8080)
@@ -775,6 +779,26 @@
   (org-roam-server-network-label-truncate-length 60)
   (org-roam-server-network-label-wrap-length 20)
   )
+
+(use-package org-modern
+  :after org
+  :config
+  (setq
+   org-auto-align-tags nil
+   org-tags-column 0
+   org-catch-invisible-edits 'show-and-error
+   org-special-crtl-a/e t
+   org-insert-heading-respect-content t
+
+   org-hide-emphasis-markers t
+   org-pretty-entities t
+   org-ellipsis "..."
+   )
+  (global-org-modern-mode)
+  )
+   
+  
+
 
 (defun org-journal-find-location ()
   ;; Open today's journal, but specify a non-nil prefix argument in order to
