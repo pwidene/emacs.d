@@ -430,7 +430,7 @@
   (persp-state-default-file (concat user-emacs-directory (convert-standard-filename ".emacs-perspective-save")))
   :hook
   (emacs-startup . (lambda () (persp-mode 1)))
-  (kill-emacs . persp-state-save)
+  (kill-emacs . persp-save-state-to-file)
 )  
 
 
@@ -642,13 +642,13 @@
 			   
 (use-package org
   :disabled f
-  :after (epa-file org-super-agenda)
+  :after epa-file 
   :bind
   ("C-c a" . org-agenda)
   ("C-c c" . org-capture)
   :custom
   (org-directory "~/.org")
-  (org-agenda-files (quote ("~/.org/journal.org")))
+  (org-agenda-files (quote ("~/Documents/org/journal.org")))
   (org-agenda-show-all-dates nil)
   (org-agenda-prefix-format '((agenda . " %i %?-12t% s")
 			      (todo . " %?-12t% s")
@@ -732,26 +732,34 @@
   )
 
 (use-package org-roam
-  :disabled f
+  :ensure t
   :after org
   :hook
-  ((after-init . org-roam-setup)
-   (org-roam-backlinks-mode . visual-line-mode))
+  (after-init . org-roam-setup)
+  (org-roam-backlinks-mode . visual-line-mode)
   :init
-  (setq org-roam-v2-ack t)
+  (setq org-roam-v2-ack t
+	org-roam-database-connector 'sqlite-builtin)
   :custom
-  (org-roam-directory "~/.org/")
+  (org-roam-directory "~/Documents/org/")
   (org-roam-tag-sources '(prop all-directories))
+  (org-roam-dailies-directory "daily/")
+
   :bind (:map org-roam-mode-map
 	      (("C-c n l" . org-roam)
 	       ("C-c n f" . org-roam-find-file)
 	       ("C-c n g" . org-roam-graph))
 	      :map org-mode-map
 	      (("C-c n i" . org-roam-insert))
-	      (("C-c n I" . org-roam-insert-immediate))))
+	      (("C-c n I" . org-roam-insert-immediate)))
+  :config
+  (require 'org-roam-export)
+  (require 'org-roam-dailies)
+  (org-roam-db-autosync-mode)
+  )
 
 (use-package org-roam-ui
-  :disabled f
+  :ensure
   :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
   :requires org-mode
   :after org-roam
@@ -763,21 +771,12 @@
   (org-roam-ui-open-on-start t)
   )
 
-(use-package org-roam-server
-  :disabled f
-  :after org-roam
-  :custom
-  (org-roam-server-host "127.0.0.1")
-  (org-roam-server-port 8080)
-  (org-roam-server-authenticate nil)
-  (org-roam-server-export-inline-images t)
-  (org-roam-server-serve-files nil)
-  (org-roam-server-served-file-extensions '("pdf" "mp4" "ogv"))
-  (org-roam-server-network-poll t)
-  (org-roam-server-network-arrows nil)
-  (org-roam-server-network-label-truncate t)
-  (org-roam-server-network-label-truncate-length 60)
-  (org-roam-server-network-label-wrap-length 20)
+(use-package org-download
+  :after org
+  :bind
+  (:map org-mode-map
+	(("s-Y" . org-download-screenshot)
+	 ("s-y" . org-download-yank)))
   )
 
 (use-package org-modern
