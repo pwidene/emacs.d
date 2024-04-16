@@ -691,6 +691,25 @@
   ;;   /opt/local/bin/emacs -batch -l ~/.emacs.d/init.el -Q -eval '(org-batch-agenda "P")'
   :init
   (add-to-list 'org-export-backends 'md)
+  (add-to-list 'org-latex-classes
+	       ;; beamer class, for presentations
+	       '("beamer"))
+
+  ;; letter class, for formal letters
+
+  (add-to-list 'org-latex-classes
+	       '("letter"
+		 "\\documentclass[11pt]{letter}\n
+      \\usepackage[utf8]{inputenc}\n
+      \\usepackage[T1]{fontenc}\n
+      \\usepackage{color}"
+		 
+		 ("\\section{%s}" . "\\section*{%s}")
+		 ("\\subsection{%s}" . "\\subsection*{%s}")
+		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
   :config
   (org-babel-do-load-languages
    'org-babel-load-languages
