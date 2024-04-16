@@ -328,7 +328,13 @@
   :if (display-graphic-p)
   )
 
-(use-package multiple-cursors )
+(use-package multiple-cursors 
+  :bind
+  ("C-c m c"   . mc/edit-lines)
+  ("C-c m <"   . mc/mark-next-like-this)
+  ("C-c m >"   . mc/mark-previous-like-this)
+  ("C-c m C-<" . mc/mark-all-like-this))
+  
 
 ;;(use-package counsel )
 ;;(use-package swiper )
