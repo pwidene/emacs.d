@@ -1,16 +1,3 @@
-;;
-;;  Eat a good breakfast
-;;
-
-;; Get site-and-host-specific customizations
-(let ((sitestart (concat user-emacs-directory (convert-standard-filename "site-start.el"))))
-  (if (file-exists-p sitestart)
-      (load-file sitestart)))
-
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-(let ((default-directory (concat user-emacs-directory "lisp/")))
-  (normal-top-level-add-subdirs-to-load-path))
-
 ;; ;;;
 ;; ;;; start package system
 ;; ;;;
@@ -62,17 +49,6 @@
   (system-packages-noconfirm t))
 
 
-;;
-;;  Emacs-server
-;;
-;;;; the following lets you kill emacsclient buffers with C-x k instead of C-x #
-;; (add-hook 'server-switch-hook
-;; 	  (lambda ()
-;; 	    (when (current-local-map)
-;; 	      (use-local-map (copy-keymap (current-local-map))))
-;; 	    (when server-buffer-clients
-;; 	      (local-set-key (kbd "C-x k") 'server-edit))))
-
 ;; so we can talk about the OS
 (use-package sysinfo
   :straight (:host github :repo "p-kolacz/sysinfo")
@@ -100,6 +76,133 @@
 ;; some useful constants
 ;; init that should precede most packages
 
+
+;;
+;; OS-specific
+;;
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'alt)
+  (setq mac-command-modifier 'meta)
+  ;; map RH Option key to Super prefix (s-<key>)
+  (setq ns-right-option-modifier 'super)
+  (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
+)
+
+;;
+;; Machine-specific
+;;
+(when (display-graphic-p)
+  (setq pmw/default-font "Source Code Pro"))
+
+(when (string-match (system-name) "MAC133962") ;; ORNL laptop
+  (setq
+   pmw/variable-pitch-font "Trebuchet MS"
+   pmw/default-font-height (if (<= (display-pixel-width) 2500) 100 120)
+   ;; OK to do a proxy check on this machine, in fact, necessary
+   pmw/do-init-proxy-check t
+   ))
+  
+(when (string-match (system-name) "x-wing") ;; home openSUSE
+  (setq
+   pmw/variable-pitch-font "DejaVu Sans"
+   pmw/default-font-height 80
+   pmw/do-init-proxy-check nil
+   ))
+
+  
+(defun pmw/proxy-on ()
+  "Set ORNL proxies"
+  (interactive)
+  (setq url-proxy-services '(("no_proxy" . "ornl\\.gov")
+			     ("http" . "snowman.ornl.gov:3128")
+			     ("https" . "snowman.ornl.gov:3128")))
+  (setenv "GIT_SSH_COMMAND" "ssh -o ProxyCommand='nc -X connect -x snowman.ornl.gov:3128 %h %p'")
+  (message "%s" "SSH proxy set for ORNL."))
+
+(defun pmw/proxy-off ()
+  "Un-set ORNL proxies"
+  (interactive)
+  (setq url-proxy-services nil)
+  (setenv "GIT_SSH_COMMAND" nil)
+  
+  (message "%s" "Proxies un-set."))
+
+;;
+;; NOW AT ORNL:
+;; If we are on the ORNL network (IPv4 addr appears to be x.x.x.x), set proxy information
+;;
+;; PREVIOUSLY If we are on the SRN (IPv4 addr begins with 134.253), set URL proxies
+;;
+;; UPDATE Feb 2021: whatever was broken in (network-interface-list) and/or macOS has apparently
+;; been fixed, so I reverted the definition of get-ip-address away from the ifconfig
+;; shell-out. The below paragraph is no longer operative.
+;;
+;; DISREGARD Feb 2021: For some reason (network-interface-list) has stopped working under some combination
+;; of Mac OS X High Sierra (and later) and Emacs 25 (and later). The modification of
+;; pmw/proxy-check below which now shells out to ifconfig compensates (although fragile
+;; because of the cut command).
+;;
+(defun pmw/get-ip-address ()
+  "get the IP address for the first en? interface that has a valid IP address"
+  (interactive)
+  ;; macOS maintains the network interface of the VPN (10.208.x.x) as long as
+  ;; the VPN app is running (even when not connected but still running in menu bar).
+  ;; There doesn't appear to be any reliable way to figure out whether the VPN address
+  ;; is actually connected from inside Emacs. scutil --nc is no help here because
+  ;; Sandia's VPN config runs outside macOS's network config and so configd has no knowledge
+  ;; of it. All this is to say that trying to automatically set proxies when on the VPN may be
+  ;; possible, but I can't figure out how to do it.
+  (catch 'ipaddr
+    (dolist (x (network-interface-list))
+      (when (and (<= (length (cdr x)) 5) (string-match "en" (car x)))
+	(throw 'ipaddr (format-network-address (cdr x) t))))))
+
+;; (let ((dev (if dev dev "en0")))
+;;   (format-network-address (car (network-interface-info dev)) t)))
+
+(defun pmw/proxy-check ()
+  "Check for SRN IP address and set proxies appropriately if found"
+  (interactive)
+  ;; 134.253.x.x is SRN, 10.208.x.x is NM VPN
+  (when (and (pmw/get-ip-address) (string-match "134\.253" (pmw/get-ip-address)))
+    (pmw/proxy-on)))
+
+;;  (catch 'found
+;;  (dolist (x (network-interface-list))
+
+;; (dolist (ipaddr (split-string (shell-command-to-string "ifconfig | grep inet | grep -v inet6 | cut -d ' ' -f 2")))
+;;      (when (string-match "134\.253" ipaddr)
+;;	(throw 'found ipaddr))) ; break the do loop
+
+
+;;
+;; My functions
+;;
+(defun pmw/new-buffer-frame ()
+  "Create a new frame with empty buffer."
+  (interactive)
+  (let ((buffer (generate-new-buffer "untitled")))
+    (set-buffer-major-mode buffer)
+    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
+(global-set-key (kbd "C-c f") #'pmw/new-buffer-frame)
+
+(defun pmw/find-alternative-file-with-sudo ()
+  (interactive)
+  (let ((fname (or buffer-file-name
+		   dired-directory)))
+    (when fname
+      (if (string-match "^/sudo:pwidene@localhost:" fname)
+	  (setq fname (replace-regexp-in-string
+		       "^/sudo:pwidene@localhost:" ""
+		       fname))
+	(setq fname (concat "/sudo:pwidene@localhost:" fname)))
+      (find-alternate-file fname))))
+(global-set-key (kbd "C-x C-r") 'pmw/find-alternative-file-with-sudo)
+
+;;; for laptop and anything that might move
+(when pmw/do-init-proxy-check (pmw/proxy-check))
+			       
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Everything from here on should be some form of use-package invocation
@@ -119,13 +222,6 @@
 
   (defalias 'yes-or-no-p 'y-or-n-p)
   (tool-bar-mode -1)
-  (add-hook 'after-init-hook
-	    (lambda ()
-	      (require 'server)
-	      (if (display-graphic-p)
-		  (unless (server-running-p)
-		    (server-start)))))
-  ;;
   (set-face-attribute 'default nil
 		      :family pmw/default-font
 		      :height pmw/default-font-height
@@ -136,6 +232,19 @@
   (set-face-attribute 'fixed-pitch nil
 		      :family pmw/default-font
 		      :weight 'regular)
+  :hook
+  (after-init . (lambda ()
+		  (require 'server)
+		  (if (display-graphic-p)
+		      (unless (server-running-p)
+			(server-start)))))
+  ;;;; the following lets you kill emacsclient buffers with C-x k instead of C-x #
+  ;; (server-switch . (lambda ()
+  ;; 		     (when (current-local-map)
+  ;; 		       (use-local-map (copy-keymap (current-local-map))))
+  ;; 		     (when server-buffer-clients
+  ;; 		       (local-set-key (kbd "C-x k") 'server-edit))))
+
   )
 
 (use-package sublime-themes )
@@ -144,6 +253,13 @@
   :config
   (load-theme 'cyberpunk t)
   )
+
+;; (add-hook 'server-switch-hook
+;; 	  (lambda ()
+;; 	    (when (current-local-map)
+;; 	      (use-local-map (copy-keymap (current-local-map))))
+;; 	    (when server-buffer-clients
+;; 	      (local-set-key (kbd "C-x k") 'server-edit))))
 
 
 
