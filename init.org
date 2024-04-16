@@ -58,7 +58,7 @@ I've since moved to straight.el.
   (straight-use-package 'bind-key)
   ;;(straight-use-package 'use-package-core)
   #+end_src
-
+  
 
 ** Control garbage collections
 
@@ -70,7 +70,7 @@ I'm not really doing much with this at the moment, because my startup isn't that
     (gcmh-mode 1))
 #+end_src
 
-** OS flags
+** OS and machine dependencies
 
 Not using these very much but someday they may come in handy
 
@@ -137,23 +137,35 @@ Here we start to get into some more dirty stuff.
   the other. 
   
 #+begin_src emacs-lisp
-(when (display-graphic-p)
-  (setq pmw/default-font "Source Code Pro"))
+  (when (display-graphic-p)
+    (setq pmw/default-font "Source Code Pro"))
 
-(when (string-match (system-name) "MAC133962") ;; ORNL laptop
-  (setq
-   pmw/variable-pitch-font "Trebuchet MS"
-   pmw/default-font-height (if (<= (display-pixel-width) 2500) 100 120)
-   ;; OK to do a proxy check on this machine, in fact, necessary
-   pmw/do-init-proxy-check t
-   ))
-  
-(when (string-match (system-name) "x-wing") ;; home openSUSE
-  (setq
-   pmw/variable-pitch-font "DejaVu Sans"
-   pmw/default-font-height 80
-   pmw/do-init-proxy-check nil
-   ))
+  (when (string-match (system-name) "MAC133962") ;; ORNL laptop
+    (setq
+     pmw/variable-pitch-font "Trebuchet MS"
+     pmw/default-font-height (if (<= (display-pixel-width) 2500) 100 120)
+     ;; OK to do a proxy check on this machine, in fact, necessary
+     pmw/do-init-proxy-check t
+
+     ;; Set some file locations
+     pmw/org-directory "~/Documents/org"
+     pmw/deft-directory "~/Documents/org"
+     pmw/org-roam-directory "~/Documents/org"
+     pmw/org-ditaa-jar-directory "/opt/local/share/java/ditaa0_9.jar"
+     ))
+    
+  (when (string-match (system-name) "x-wing") ;; home openSUSE
+    (setq
+     pmw/variable-pitch-font "DejaVu Sans"
+     pmw/default-font-height 80
+     pmw/do-init-proxy-check nil
+     ;; Set some file locations
+     pmw/org-directory "~/Documents/org"
+     pmw/deft-directory "~/Documents/org"
+     pmw/org-roam-directory "~/Documents/org"
+     pmw/org-ditaa-jar-directory "/usr/local/share/java/ditaa0_9.jar"
+
+     ))
 #+end_src
 
 *** Proxy follies
@@ -302,482 +314,335 @@ We start with the emacs pseudo-package to do some miscellaneous settings
     )
 #+end_src
 
-** Color theming
+** Color theming, cursors, other look-and-feel
 
 #+begin_src emacs-lisp
-  (use-package sublime-themes )
-  (use-package cyberpunk-theme )
-  (use-package color-theme-modern 
+    (use-package sublime-themes )
+    (use-package cyberpunk-theme )
+    (use-package color-theme-modern 
+      :config
+      (load-theme 'cyberpunk t)
+      )
+
+    (use-package cursor-chg
     :config
-    (load-theme 'cyberpunk t)
+    (change-cursor-mode 1)
+    (toggle-cursor-type-when-idle 1)
+    (curchg-change-cursor-when-idle-interval 5)
     )
+
+    (use-package rainbow-mode
+    :custom
+    (rainbow-x-colors nil)
+    :hook prog-mode
+    )
+
+    (use-package f )
+  (use-package popup )
+    
+  (use-package autofit-frame
+    :custom
+    (autofit-frames-flag nil)
+    :config
+    (add-hook 'after-make-frame-functions 'fit-frame)
+    )
+
+  (use-package hexrgb
+    :if (display-graphic-p)
+    )
+
+    
+  (use-package mwheel
+    :straight (:type built-in)
+    :custom
+    (mouse-wheel-scroll-amount '(1
+  			       ((shift) . 5)
+  			       ((control))))
+    (mouse-wheel-progressive-speed nil))
+
+  (use-package pixel-scroll
+    :straight (:type built-in)
+    :config
+    (pixel-scroll-mode))
+
+
+
+  (use-package spacious-padding
+    :custom
+    (spacious-padding-subtle-mode-line
+     `( :mode-line-active 'default
+        :mode-line-inactive vertical-border))
+    ;; these are default values from the package documentation
+    (spacious-padding-widths
+     `( :internal-border-width 15
+        :header-line-width 4
+        :mode-line-width 4
+        :tab-width 4
+        :right-divider-width 30
+        :scroll-bar-width 8
+        :fringe-width 8))
+    :config
+    (spacious-padding-mode 1)
+    )
+
+
+  ;; minimap
+
+  (use-package all-the-icons
+    :if (display-graphic-p)
+    )
+
+  (use-package centaur-tabs
+    :disabled t
+    :demand
+    
+    :bind
+    (("C-<prior>" . centaur-tabs-backward)
+     ("C-<next>" . centaur-tabs-forward))
+    :custom
+    (centaur-tabs-style "bar")
+    (centaur-tabs-set-icons t)
+    (centaur-tabs-set-bar 'under)
+    (x-underline-at-descent-line t)
+    (centaur-tabs-height 24)
+    (centaur-tabs-set-modified-marker t)
+    :config
+    (centaur-tabs-mode t)
+    ;;  (centaur-tabs-headline-match)
+    ;;  (centaur-tabs-change-fonts "arial" 120)
+    (centaur-tabs-group-by-projectile-project)
+    )
+
+
+  (use-package smartparens
+    
+    :config
+    ;;;(smartparens-global-mode f)
+    )
+
+  ;; modeline / line number stuff
+  (use-package telephone-line
+    
+    :config
+    (telephone-line-mode 1)
+    )
+
 #+end_src
 
-
-
+** LaTeX setup
 #+begin_src emacs-lisp
-(use-package cursor-chg
-  :config
-  (change-cursor-mode 1)
-  (toggle-cursor-type-when-idle 1)
-  (curchg-change-cursor-when-idle-interval 5)
-  )
-  
-
-(use-package saveplace
-  
-  :config
-  (save-place-mode 1)
-  )
-
-(use-package vc
-  :custom
-  (vc-follow-symlinks t)
-  )
-
-(use-package rainbow-mode
-  :custom
-  (rainbow-x-colors nil)
-  :hook prog-mode
-  )
-
-(use-package bibtex
-  :custom
-  (bibtex-dialect 'biblatex)
-  )
-
-(use-package tex
-  :straight auctex
-  :custom
-  (TeX-auto-save t)
-  (TeX-parse-self t)
-  :config
-  (setq-default TeX-master nil)
-  :hook (LaTeX-mode . (lambda ()
-			(auto-fill-mode)
-			(setq TeX-command-default "Latexmk")
-			'turn-on-reftex
-			(visual-line-mode)
-			(set-fill-column 105)))
-  
-  )
-
-(use-package auctex-latexmk
-  :requires auctex
-  )
-
-
-(use-package f )
-(use-package popup )
-  
-(use-package autofit-frame
-  :custom
-  (autofit-frames-flag nil)
-  :config
-  (add-hook 'after-make-frame-functions 'fit-frame)
-  )
-
-(use-package hexrgb
-  :if (display-graphic-p)
-  )
-
-(use-package multiple-cursors 
-  :bind
-  ("C-c m c"   . mc/edit-lines)
-  ("C-c m <"   . mc/mark-next-like-this)
-  ("C-c m >"   . mc/mark-previous-like-this)
-  ("C-c m C-<" . mc/mark-all-like-this))
-  
-
-;;(use-package counsel )
-;;(use-package swiper )
-(use-package ivy
-  :disabled t
-  :after (counsel swiper)
-  
-  :custom
-  (ivy-use-virtual-buffers t)
-  (ivy-count-format "%d/%d ")
-  (ivy-wrap t)
-  (ivy-extra-directories nil)
-  :bind
-  (("C-s" . swiper)
-   ("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-c g" . counsel-git)
-   ("C-c j" . counsel-git-grep))
-  :config
-  (ivy-set-actions
-   `counsel-find-file
-   `(("j" find-file-other-frame "other frame")
-     ("d" delete-file "delete")
-     ("r" counsel-find-file-as-root "open as root")))
-  (ivy-set-actions
-   `ivy-switch-buffer
-   `(("j" switch-to-buffer-other-frame "other frame")
-     ("k" kill-buffer "kill")
-     ("r" ivy--rename-buffer-action "rename")))
-  (ivy-mode 1)
-  )
-
-
-(use-package ivy-posframe
-  :disabled t
-  :after (ivy counsel swiper)
-  
-  :custom
-  ;; (setq ivy-posframe-display-functions-alist `((t . ivy-posframe-display))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
-  (ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-  :config
-  (ivy-posframe-mode 1)
-  )
-
-(use-package vertico)
-(use-package vertico-posframe
-  :after (vertico posframe)
-  :custom
-  (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
-  :config
-  (vertico-posframe-mode 1)
-  )
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (matching-styles '(orderless flex))
-  (completion-category-overrides '((file (styles basic partial-completion))))
-  )
-(use-package embark)
-(use-package marginalia)
-
-(use-package corfu
-  ;; Optional customizations
-  ;; :custom
-  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  ;; (corfu-auto t)                 ;; Enable auto completion
-  ;; (corfu-separator ?\s)          ;; Orderless field separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
-  ;; Enable Corfu only for certain modes.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
-
-  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-  ;; be used globally (M-/).  See also the customization variable
-  ;; `global-corfu-modes' to exclude certain modes.
-  :init
-  (global-corfu-mode)
-  )
-
-
-(use-package spacious-padding
-  :custom
-  (spacious-padding-subtle-mode-line
-   `( :mode-line-active 'default
-      :mode-line-inactive vertical-border))
-  ;; these are default values from the package documentation
-  (spacious-padding-widths
-   `( :internal-border-width 15
-      :header-line-width 4
-      :mode-line-width 4
-      :tab-width 4
-      :right-divider-width 30
-      :scroll-bar-width 8
-      :fringe-width 8))
-  :config
-  (spacious-padding-mode 1)
-  )
-
-
-;; minimap
-(use-package minimap
-  :custom
-  (minimap-window-location 'right)
-  )
-
-(use-package all-the-icons
-  :if (display-graphic-p)
-  )
-
-(use-package centaur-tabs
-  :disabled t
-  :demand
-  
-  :bind
-  (("C-<prior>" . centaur-tabs-backward)
-   ("C-<next>" . centaur-tabs-forward))
-  :custom
-  (centaur-tabs-style "bar")
-  (centaur-tabs-set-icons t)
-  (centaur-tabs-set-bar 'under)
-  (x-underline-at-descent-line t)
-  (centaur-tabs-height 24)
-  (centaur-tabs-set-modified-marker t)
-  :config
-  (centaur-tabs-mode t)
-  ;;  (centaur-tabs-headline-match)
-  ;;  (centaur-tabs-change-fonts "arial" 120)
-  (centaur-tabs-group-by-projectile-project)
-  )
-
-
-(use-package smartparens
-  
-  :config
-  ;;;(smartparens-global-mode f)
-  )
-
-(use-package electric-case
-  :disabled t
-  )
-(use-package electric-operator
-  :disabled t
-  )
-
-;; modeline / line number stuff
-(use-package telephone-line
-  
-  :config
-  (telephone-line-mode 1)
-  )
-
-(use-package gnuplot-mode
-  :mode 
-  ("\\.\\(gp\\|gnuplot\\)$" . gnuplot-mode)
-  )
-
-;; dired+ / bookmark+ / desktop
-(use-package dired+
-  :custom
-  (diredp-hide-details-initially-flag nil)
-  )
-
-(use-package bookmark+
-  :disabled t
-  :custom
-  (bmkp-desktop-jump-save-before-flag t)
-  :config
-  (add-hook 'kill-emacs (progn
-			  (bmkp-desktop-save-as-last)))
-  )
-
-
-;;
-;;  magit
-;;
-(use-package magit
-  :bind
-  ("C-c g" . magit-status)
-  :config
-  (add-hook 'magit-mode #'magit-load-config-extensions)
-  )
-
-(use-package git-messenger )
-(use-package git-gutter
-  
-  :custom
-  (git-gutter:added-sign "+ ")
-  (git-gutter:modified-sign "* ")
-  (git-gutter:deleted-sign "- ")
-  (git-gutter:lighter " GG")
-  :config
-  (global-git-gutter-mode 1)
-  (git-gutter:linum-setup)
-  )
-
-(use-package nameframe
-  :disabled t
-  )
-
-
-(use-package persp-mode
-  :custom
-  (persp-autokill-buffer-on-remove 'kill-weak)
-  (persp-state-default-file (concat user-emacs-directory (convert-standard-filename ".emacs-perspective-save")))
-  :hook
-  (emacs-startup . (lambda () (persp-mode 1)))
-  (kill-emacs . persp-save-state-to-file)
-)  
-
-
-
-(use-package shell-pop
-  
-  :custom
-  (shell-pop-term-shell "/opt/local/bin/zsh")
-  (shell-pop-full-span t)
-  (shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
-  (shell-pop-window-position "bottom")
-  (shell-pop-autocd-to-working-dir t)
-  (shell-pop-universal-key "C-t")
-  )
-   
-  
-  
-(use-package treemacs
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-  :config
-  (progn
-    (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-          treemacs-deferred-git-apply-delay      0.5
-          treemacs-directory-name-transformer    #'identity
-          treemacs-display-in-side-window        t
-          treemacs-eldoc-display                 t
-          treemacs-file-event-delay              5000
-          treemacs-file-extension-regex          treemacs-last-period-regex-value
-          treemacs-file-follow-delay             0.2
-          treemacs-file-name-transformer         #'identity
-          treemacs-follow-after-init             t
-          treemacs-git-command-pipe              ""
-          treemacs-goto-tag-strategy             'refetch-index
-          treemacs-indentation                   2
-          treemacs-indentation-string            " "
-          treemacs-is-never-other-window         nil
-          treemacs-max-git-entries               5000
-          treemacs-missing-project-action        'ask
-          treemacs-move-forward-on-expand        nil
-          treemacs-no-png-images                 nil
-          treemacs-no-delete-other-windows       t
-          treemacs-project-follow-cleanup        nil
-          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-position                      'left
-          treemacs-recenter-distance             0.1
-          treemacs-recenter-after-file-follow    nil
-          treemacs-recenter-after-tag-follow     nil
-          treemacs-recenter-after-project-jump   'always
-          treemacs-recenter-after-project-expand 'on-distance
-          treemacs-show-cursor                   nil
-          treemacs-show-hidden-files             t
-          treemacs-silent-filewatch              nil
-          treemacs-silent-refresh                nil
-          treemacs-sorting                       'alphabetic-asc
-          treemacs-space-between-root-nodes      t
-          treemacs-tag-follow-cleanup            t
-          treemacs-tag-follow-delay              1.5
-          treemacs-user-mode-line-format         nil
-          treemacs-user-header-line-format       nil
-          treemacs-width                         35)
-
-    ;; The default width and height of the icons is 22 pixels. If you are
-    ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
-
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode t)
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null treemacs-python-executable)))
-      (`(t . t)
-       (treemacs-git-mode 'deferred))
-      (`(t . _)
-       (treemacs-git-mode 'simple))))
-  :bind
-  (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
-
-(use-package treemacs-evil
-  :after treemacs evil
-  )
-
-(use-package treemacs-icons-dired
-  :after treemacs dired
-  
-  :config (treemacs-icons-dired-mode))
-
-(use-package treemacs-magit
-  :after treemacs magit
-  )
-
-(use-package treemacs-persp
-  :after treemacs persp-mode
-  
-  :config (treemacs-set-scope-type 'Perspectives))
-
-(use-package cmake-mode
-  :mode
-  (("CMakeLists\\.txt\\'" . cmake-mode)
-   ("\\.cmake\\'" . cmake-mode))
-  :init
-  (defun cmake-rename-buffer ()
-    "Renames a CMakeLists.txt buffer to cmake-<directory name>."
-    (interactive)
-					;(print (concat "buffer-filename = " (buffer-file-name)))
-					;(print (concat "buffer-name     = " (buffer-name)))
-    (when (and (buffer-file-name) (string-match "CMakeLists.txt" (buffer-name)))
-					;(setq file-name (file-name-nondirectory (buffer-file-name)))
-      (setq parent-dir (file-name-nondirectory (directory-file-name (file-name-directory (buffer-file-name)))))
-					;(print (concat "parent-dir = " parent-dir))
-      (setq new-buffer-name (concat "cmake-" parent-dir))
-					;(print (concat "new-buffer-name= " new-buffer-name))
-      (rename-buffer new-buffer-name t)
-      )
+  (use-package bibtex
+    :custom
+    (bibtex-dialect 'biblatex)
     )
-  :hook (cmake-mode . cmake-rename-buffer)
-  )
 
-(use-package easy-jekyll
-  
-  :custom
-  (easy-jekyll-basedir "~/Documents/pwidene.github.io/")
-  (easy-jekyll-url "https://pwidene.github.io")
-  (easy-jekyll-image-directory "assets")
-  (easy-jekyll-default-picture-directory "~/Desktop")
-  :bind
-  ("C-c C-e" . easy-jekyll)
-  )
+  (use-package tex
+    :straight auctex
+    :custom
+    (TeX-auto-save t)
+    (TeX-parse-self t)
+    :config
+    (setq-default TeX-master nil)
+    :hook (LaTeX-mode . (lambda ()
+  			(auto-fill-mode)
+  			(setq TeX-command-default "Latexmk")
+  			'turn-on-reftex
+  			(visual-line-mode)
+  			(set-fill-column 105)))
+    
+    )
 
-  
-(use-package cc-mode
-  :mode ("\\.h\\'" . c++-mode)
+  (use-package auctex-latexmk
+    :requires auctex
+    )
+
+  (use-package pdf-tools
+  :after (tablist)
   :config
-  (show-smartparens-mode 1)
+  (pdf-loader-install)
+  )
+
+(use-package biblio
+  :custom
+  (biblio-crossref-user-email-address "widenerpm@ornl.gov")
+  )
+(use-package citar
+  :custom
+  (citar-bibliography '("~/work/bib/references.bib" "~/Documents/cv/pubs/pubs.bib"))
   :hook
-  (c-mode-common . display-line-numbers-mode)
+  (LaTeX-mode . citar-capf-setup)
+  (org-mode . citar-capf-setup)
+  )
+(use-package citar-embark
+  :after citar embark
+  :no-require
+  :config (citar-embark-mode)
   )
 
-(use-package markdown-mode
-  :mode ("\\.\\(md\\|markdown\\)\\'" . markdown-mode))
-(use-package js2-mode
-  :mode "\\.js\\'")
-(use-package rjsx-mode :mode "\\.jsx\\'")
-(use-package json-mode
-  :mode "\\.json\\'")
-(use-package plantuml-mode
-  :mode "\\.uml\\'")
-(use-package yaml-mode
-  :mode "\\.yaml\\'")
-(use-package haskell-mode
-  :mode "\\.hs\\'")
-(use-package web-mode
-  :mode ("\\.\\(html\\|htm\\)\\'" . wevb-mode))
+    
+#+end_src
 
-(use-package rustic
-  :straight (:host github :repo "brotzeit/rustic")
-  :mode 
-  ("\\.\\(rs\\|rust\\)$" . rust-mode)
+** Completing-read packages
+I have recently switched to consul / vertico / embark and friends. Previously was using Ivy and before that Helm.
 
-  )
+Here's the old Ivy config for reference. I doubt I'll go back to it now.
 
-(use-package deft
+#+begin_src emacs-lisp :tangle no
+    ;;(use-package counsel )
+  ;;(use-package swiper )
+  (use-package ivy
+    :disabled t
+    :after (counsel swiper)
+    
+    :custom
+    (ivy-use-virtual-buffers t)
+    (ivy-count-format "%d/%d ")
+    (ivy-wrap t)
+    (ivy-extra-directories nil)
+    :bind
+    (("C-s" . swiper)
+     ("M-x" . counsel-M-x)
+     ("C-x C-f" . counsel-find-file)
+     ("C-c g" . counsel-git)
+     ("C-c j" . counsel-git-grep))
+    :config
+    (ivy-set-actions
+     `counsel-find-file
+     `(("j" find-file-other-frame "other frame")
+       ("d" delete-file "delete")
+       ("r" counsel-find-file-as-root "open as root")))
+    (ivy-set-actions
+     `ivy-switch-buffer
+     `(("j" switch-to-buffer-other-frame "other frame")
+       ("k" kill-buffer "kill")
+       ("r" ivy--rename-buffer-action "rename")))
+    (ivy-mode 1)
+    )
+
+
+  (use-package ivy-posframe
+    :disabled t
+    :after (ivy counsel swiper)
+    
+    :custom
+    ;; (setq ivy-posframe-display-functions-alist `((t . ivy-posframe-display))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+    (ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+    :config
+    (ivy-posframe-mode 1)
+    )
+  #+END_SRC
+
+Now I'm trying to figure out how to work with vertico.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package vertico)
+  (use-package vertico-posframe
+    :after (vertico posframe)
+    :custom
+    (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
+    :config
+    (vertico-posframe-mode 1)
+    )
+  (use-package orderless
+    :ensure t
+    :custom
+    (completion-styles '(orderless basic))
+    (matching-styles '(orderless flex))
+    (completion-category-overrides '((file (styles basic partial-completion))))
+    )
+  (use-package embark)
+  (use-package marginalia)
+
+  (use-package corfu
+    ;; Optional customizations
+    ;; :custom
+    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    ;; (corfu-auto t)                 ;; Enable auto completion
+    ;; (corfu-separator ?\s)          ;; Orderless field separator
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
+
+    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+    ;; be used globally (M-/).  See also the customization variable
+    ;; `global-corfu-modes' to exclude certain modes.
+    :init
+    (global-corfu-mode)
+    )
+
+#+end_src
+
+** Getting around Emacs
+Perspectives and similar
+#+begin_src emacs-lisp
+  (use-package nameframe
+    :disabled t
+    )
+
+
+  (use-package persp-mode
+    :custom
+    (persp-autokill-buffer-on-remove 'kill-weak)
+    (persp-state-default-file (concat user-emacs-directory (convert-standard-filename ".emacs-perspective-save")))
+    :hook
+    (emacs-startup . (lambda () (persp-mode 1)))
+    (kill-emacs . persp-save-state-to-file)
+  )  
+
+  (use-package saveplace
+    :config
+    (save-place-mode 1)
+    )
+
+    (use-package multiple-cursors 
+    :bind
+    ("C-c m c"   . mc/edit-lines)
+    ("C-c m <"   . mc/mark-next-like-this)
+    ("C-c m >"   . mc/mark-previous-like-this)
+    ("C-c m C-<" . mc/mark-all-like-this))
+
+    ;; dired+ / bookmark+ / desktop
+  (use-package dired+
+    :custom
+    (diredp-hide-details-initially-flag nil)
+    )
+
+  (use-package bookmark+
+    :disabled t
+    :custom
+    (bmkp-desktop-jump-save-before-flag t)
+    :config
+    (add-hook 'kill-emacs (progn
+  			  (bmkp-desktop-save-as-last)))
+    )
+
+    (use-package cus-edit
+    :straight (:type built-in)
+    :custom
+    (custom-file (concat user-emacs-directory (convert-standard-filename "custom.el")))
+    :config
+    (load-file custom-file)
+    )
+
+#+end_src
+
+** Org and friends
+#+begin_src emacs-lisp
+  (use-package deft
   :disabled t
   :custom
-  (deft-directory "~/Documents/repo/notes")
+  (deft-directory pmw/deft-directory)
   (deft-use-file-name-as-title t)
   (deft-use-filter-string-for-filename t)
   (deft-extension "org")
@@ -822,8 +687,8 @@ We start with the emacs pseudo-package to do some miscellaneous settings
   ("C-c a" . org-agenda)
   ("C-c c" . org-capture)
   :custom
-  (org-directory "~/.org")
-  (org-agenda-files (quote ("~/Documents/org/journal.org")))
+  (org-directory pmw/org-directory)
+  (org-agenda-files (quote (concat pmw/org-directory (convert-standard-filename "journal.org"))))
   (org-agenda-show-all-dates nil)
   (org-agenda-prefix-format '((agenda . " %i %?-12t% s")
 			      (todo . " %?-12t% s")
@@ -836,7 +701,7 @@ We start with the emacs pseudo-package to do some miscellaneous settings
   (org-indirect-buffer-display 'current-window)
   (org-log-into-drawer t)
   ;; set ditaa JAR path to work with org/babel (http://sourceforge.net/projects/ditaa/)
-  (org-ditaa-jar-path "/opt/local/share/java/ditaa0_9.jar")
+  (org-ditaa-jar-path pmw/org-ditaa-jar-directory)
   (org-tags-exclude-from-inheritance (quote ("crypt")))
   (org-todo-keywords '((sequence "TODO" "|" "DONE")
 		       (sequence "ACTIVITY" "PAUSED" "|" "COMPLETED" "ABANDONED")))
@@ -935,7 +800,7 @@ We start with the emacs pseudo-package to do some miscellaneous settings
   (setq org-roam-v2-ack t
 	org-roam-database-connector 'sqlite-builtin)
   :custom
-  (org-roam-directory "~/Documents/org/")
+  (org-roam-directory pmw/org-roam-directory)
   (org-roam-tag-sources '(prop all-directories))
   (org-roam-dailies-directory "daily/")
 
@@ -1022,28 +887,6 @@ We start with the emacs pseudo-package to do some miscellaneous settings
 
 (use-package tablist)
 
-(use-package pdf-tools
-  :after (tablist)
-  :config
-  (pdf-loader-install)
-  )
-
-(use-package biblio
-  :custom
-  (biblio-crossref-user-email-address "widenerpm@ornl.gov")
-  )
-(use-package citar
-  :custom
-  (citar-bibliography '("~/work/bib/references.bib" "~/Documents/cv/pubs/pubs.bib"))
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode . citar-capf-setup)
-  )
-(use-package citar-embark
-  :after citar embark
-  :no-require
-  :config (citar-embark-mode)
-  )
 (use-package org-noter)
 
 (use-package htmlize
@@ -1051,63 +894,266 @@ We start with the emacs pseudo-package to do some miscellaneous settings
   (org-html-htmlize-output-type 'css)
   (org-html-htmlize-font-prefix "org-"))
 
-(use-package autoinsert
-  :hook (find-file . auto-insert)
-  )
+#+end_src
 
-(use-package yasnippet
-  :custom
-  (yas-prompt-functions '(yas-completing-prompt))
-  :config
-  (yas-reload-all)
-  :hook
-  (prog-mode  . yas-minor-mode))
+** Programming support
+For me, this includes things like treemacs, magit, etc.
 
-(use-package yasnippet-snippets
-  :after yasnippet
-  )
+#+begin_src emacs-lisp
+      (use-package magit
+      :bind
+      ("C-c g" . magit-status)
+      :config
+      (add-hook 'magit-mode #'magit-load-config-extensions)
+      )
 
-(use-package recentf
-  :custom
-  (recentf-max-menu-items 25)
-  (recentf-max-saved-items 25)
-  :config
-  (recentf-mode 1)
-  (global-set-key "\C-x\ \C-r" 'recentf-open-files))
+    (use-package git-messenger )
+    (use-package git-gutter
+      
+      :custom
+      (git-gutter:added-sign "+ ")
+      (git-gutter:modified-sign "* ")
+      (git-gutter:deleted-sign "- ")
+      (git-gutter:lighter " GG")
+      :config
+      (global-git-gutter-mode 1)
+      (git-gutter:linum-setup)
+      )
+
+    (use-package minimap
+    :custom
+    (minimap-window-location 'right)
+    )
+    
+  (use-package shell-pop
+    
+    :custom
+    (shell-pop-term-shell "/opt/local/bin/zsh")
+    (shell-pop-full-span t)
+    (shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
+    (shell-pop-window-position "bottom")
+    (shell-pop-autocd-to-working-dir t)
+    (shell-pop-universal-key "C-t")
+    )
+
+  (use-package vc
+    :custom
+    vc-follow-symlinks t)
+    
+    
+  (use-package treemacs
+    :init
+    (with-eval-after-load 'winum
+      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+    :config
+    (progn
+      (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+            treemacs-deferred-git-apply-delay      0.5
+            treemacs-directory-name-transformer    #'identity
+            treemacs-display-in-side-window        t
+            treemacs-eldoc-display                 t
+            treemacs-file-event-delay              5000
+            treemacs-file-extension-regex          treemacs-last-period-regex-value
+            treemacs-file-follow-delay             0.2
+            treemacs-file-name-transformer         #'identity
+            treemacs-follow-after-init             t
+            treemacs-git-command-pipe              ""
+            treemacs-goto-tag-strategy             'refetch-index
+            treemacs-indentation                   2
+            treemacs-indentation-string            " "
+            treemacs-is-never-other-window         nil
+            treemacs-max-git-entries               5000
+            treemacs-missing-project-action        'ask
+            treemacs-move-forward-on-expand        nil
+            treemacs-no-png-images                 nil
+            treemacs-no-delete-other-windows       t
+            treemacs-project-follow-cleanup        nil
+            treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+            treemacs-position                      'left
+            treemacs-recenter-distance             0.1
+            treemacs-recenter-after-file-follow    nil
+            treemacs-recenter-after-tag-follow     nil
+            treemacs-recenter-after-project-jump   'always
+            treemacs-recenter-after-project-expand 'on-distance
+            treemacs-show-cursor                   nil
+            treemacs-show-hidden-files             t
+            treemacs-silent-filewatch              nil
+            treemacs-silent-refresh                nil
+            treemacs-sorting                       'alphabetic-asc
+            treemacs-space-between-root-nodes      t
+            treemacs-tag-follow-cleanup            t
+            treemacs-tag-follow-delay              1.5
+            treemacs-user-mode-line-format         nil
+            treemacs-user-header-line-format       nil
+            treemacs-width                         35)
+
+      ;; The default width and height of the icons is 22 pixels. If you are
+      ;; using a Hi-DPI display, uncomment this to double the icon size.
+      ;;(treemacs-resize-icons 44)
+
+      (treemacs-follow-mode t)
+      (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode t)
+      (pcase (cons (not (null (executable-find "git")))
+                   (not (null treemacs-python-executable)))
+        (`(t . t)
+         (treemacs-git-mode 'deferred))
+        (`(t . _)
+         (treemacs-git-mode 'simple))))
+    :bind
+    (:map global-map
+          ("M-0"       . treemacs-select-window)
+          ("C-x t 1"   . treemacs-delete-other-windows)
+          ("C-x t t"   . treemacs)
+          ("C-x t B"   . treemacs-bookmark)
+          ("C-x t C-t" . treemacs-find-file)
+          ("C-x t M-t" . treemacs-find-tag)))
+
+  (use-package treemacs-evil
+    :after treemacs evil
+    )
+
+  (use-package treemacs-icons-dired
+    :after treemacs dired
+    
+    :config (treemacs-icons-dired-mode))
+
+  (use-package treemacs-magit
+    :after treemacs magit
+    )
+
+  (use-package treemacs-persp
+    :after treemacs persp-mode
+    
+    :config (treemacs-set-scope-type 'Perspectives))
+
+  (use-package cmake-mode
+    :mode
+    (("CMakeLists\\.txt\\'" . cmake-mode)
+     ("\\.cmake\\'" . cmake-mode))
+    :init
+    (defun cmake-rename-buffer ()
+      "Renames a CMakeLists.txt buffer to cmake-<directory name>."
+      (interactive)
+  					;(print (concat "buffer-filename = " (buffer-file-name)))
+  					;(print (concat "buffer-name     = " (buffer-name)))
+      (when (and (buffer-file-name) (string-match "CMakeLists.txt" (buffer-name)))
+  					;(setq file-name (file-name-nondirectory (buffer-file-name)))
+        (setq parent-dir (file-name-nondirectory (directory-file-name (file-name-directory (buffer-file-name)))))
+  					;(print (concat "parent-dir = " parent-dir))
+        (setq new-buffer-name (concat "cmake-" parent-dir))
+  					;(print (concat "new-buffer-name= " new-buffer-name))
+        (rename-buffer new-buffer-name t)
+        )
+      )
+    :hook (cmake-mode . cmake-rename-buffer)
+    )
+
+#+end_src
 
 
-(use-package gist)
 
-(use-package mwheel
-  :straight (:type built-in)
-  :custom
-  (mouse-wheel-scroll-amount '(1
-			       ((shift) . 5)
-			       ((control))))
-  (mouse-wheel-progressive-speed nil))
+** Modes
+#+begin_src emacs-lisp
+    (use-package gnuplot-mode
+    :mode 
+    ("\\.\\(gp\\|gnuplot\\)$" . gnuplot-mode)
+    )
+  (use-package cc-mode
+    :mode ("\\.h\\'" . c++-mode)
+    :config
+    (show-smartparens-mode 1)
+    :hook
+    (c-mode-common . display-line-numbers-mode)
+    )
 
-(use-package pixel-scroll
-  :straight (:type built-in)
-  :config
-  (pixel-scroll-mode))
+  (use-package markdown-mode
+    :mode ("\\.\\(md\\|markdown\\)\\'" . markdown-mode))
+  (use-package js2-mode
+    :mode "\\.js\\'")
+  (use-package rjsx-mode :mode "\\.jsx\\'")
+  (use-package json-mode
+    :mode "\\.json\\'")
+  (use-package plantuml-mode
+    :mode "\\.uml\\'")
+  (use-package yaml-mode
+    :mode "\\.yaml\\'")
+  (use-package haskell-mode
+    :mode "\\.hs\\'")
+  (use-package web-mode
+    :mode ("\\.\\(html\\|htm\\)\\'" . wevb-mode))
 
-(use-package cus-edit
-  :straight (:type built-in)
-  :custom
-  (custom-file (concat user-emacs-directory (convert-standard-filename "custom.el")))
-  :config
-  (load-file custom-file)
-  )
+  (use-package rustic
+    :straight (:host github :repo "brotzeit/rustic")
+    :mode 
+    ("\\.\\(rs\\|rust\\)$" . rust-mode)
 
-(use-package apples-mode
+    )
+
+  (use-package apples-mode
   :straight (:host github :repo "rprimus/apples-mode")
   )
 
+#+end_src
+
+** Odds and ends
+#+begin_src emacs-lisp
+    
 
 
-;;
-;; end of init.el
-;;
+
+
+
+  (use-package easy-jekyll
+    
+    :custom
+    (easy-jekyll-basedir "~/Documents/pwidene.github.io/")
+    (easy-jekyll-url "https://pwidene.github.io")
+    (easy-jekyll-image-directory "assets")
+    (easy-jekyll-default-picture-directory "~/Desktop")
+    :bind
+    ("C-c C-e" . easy-jekyll)
+    )
+
+    
+
+
+  (use-package autoinsert
+    :hook (find-file . auto-insert)
+    )
+
+  (use-package yasnippet
+    :disabled t
+    :custom
+    (yas-prompt-functions '(yas-completing-prompt))
+    :config
+    (yas-reload-all)
+    :hook
+    (prog-mode  . yas-minor-mode))
+
+  (use-package yasnippet-snippets
+    :after yasnippet
+    )
+
+  (use-package recentf
+    :custom
+    (recentf-max-menu-items 25)
+    (recentf-max-saved-items 25)
+    :config
+    (recentf-mode 1)
+    (global-set-key "\C-x\ \C-r" 'recentf-open-files))
+
+
+  (use-package gist)
+
+
+
+
+
+
+  ;;
+  ;; end of init.el
+  ;;
 #+end_src
 
 
