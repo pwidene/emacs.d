@@ -1,5 +1,5 @@
 :DOC-CONFIG:
-#+property: header-args:emacs-lisp :tangle (concat (file-name-sans-extension (buffer-file-name)) "-test.el")
+#+property: header-args:emacs-lisp :tangle (concat (file-name-sans-extension (buffer-file-name)) ".el")
 #+property: header-args :mkdirp yes :comments no
 #+startup: fold
 :END:
@@ -152,6 +152,7 @@ Here we start to get into some more dirty stuff.
      pmw/deft-directory "~/Documents/org"
      pmw/org-roam-directory "~/Documents/org"
      pmw/org-ditaa-jar-directory "/opt/local/share/java/ditaa0_9.jar"
+     pmw/shell-command "/opt/local/bin/zsh"
      ))
     
   (when (string-match (system-name) "x-wing") ;; home openSUSE
@@ -164,7 +165,7 @@ Here we start to get into some more dirty stuff.
      pmw/deft-directory "~/Documents/org"
      pmw/org-roam-directory "~/Documents/org"
      pmw/org-ditaa-jar-directory "/usr/local/share/java/ditaa0_9.jar"
-
+     pmw/shell-command "/bin/zsh"
      ))
 #+end_src
 
@@ -928,7 +929,7 @@ For me, this includes things like treemacs, magit, etc.
   (use-package shell-pop
     
     :custom
-    (shell-pop-term-shell "/opt/local/bin/zsh")
+    (shell-pop-term-shell pmw/shell-command)
     (shell-pop-full-span t)
     (shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
     (shell-pop-window-position "bottom")
@@ -1067,6 +1068,11 @@ For me, this includes things like treemacs, magit, etc.
     (c-mode-common . display-line-numbers-mode)
     )
 
+  (use-package go-mode
+    :mode "\\.go\\'")
+  (use-package go-tag)
+    
+    
   (use-package markdown-mode
     :mode ("\\.\\(md\\|markdown\\)\\'" . markdown-mode))
   (use-package js2-mode
