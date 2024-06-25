@@ -72,6 +72,8 @@ I'm not really doing much with this at the moment, because my startup isn't that
 
 ** OS and machine dependencies
 
+*** Define flags for platform
+
 Not using these very much but someday they may come in handy
 
 #+begin_src emacs-lisp
@@ -105,7 +107,7 @@ Not using these very much but someday they may come in handy
 #+end_src
 
 
-OS-specific things, mainly dealing with different keyboards
+*** OS-specific things, mainly dealing with different keyboards
 
 #+begin_src emacs-lisp
 (when (eq system-type 'darwin)
@@ -117,7 +119,7 @@ OS-specific things, mainly dealing with different keyboards
 )
 #+end_src
 
-*** Finally some good f'ing food
+*** Machine-specific differences
 
 Here we start to get into some more dirty stuff.
 
@@ -134,7 +136,10 @@ Here we start to get into some more dirty stuff.
   network via WPA or VPN. No such problem on the home box, obviously.
 
   Note that I'm just indicating grossly that a proxy check should be done in one place and not
-  the other. 
+  the other.
+
+- File / executable paths
+  Paths are of course different between macOS and Linux.
   
 #+begin_src emacs-lisp
   (when (display-graphic-p)
@@ -153,6 +158,7 @@ Here we start to get into some more dirty stuff.
      pmw/org-roam-directory "~/Documents/org"
      pmw/org-ditaa-jar-directory "/opt/local/share/java/ditaa0_9.jar"
      pmw/shell-command "/opt/local/bin/zsh"
+     pmw/aspell-command "/opt/local/bin/aspell"
      ))
     
   (when (string-match (system-name) "x-wing") ;; home openSUSE
@@ -166,6 +172,7 @@ Here we start to get into some more dirty stuff.
      pmw/org-roam-directory "~/Documents/org"
      pmw/org-ditaa-jar-directory "/usr/local/share/java/ditaa0_9.jar"
      pmw/shell-command "/bin/zsh"
+     pmw/aspell-command "/usr/bin/aspell"
      ))
 #+end_src
 
