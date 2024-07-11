@@ -666,10 +666,6 @@ Perspectives and similar
     (epa-file-enable)
     )
 
-  (use-package org-bullets
-    :after org
-    :hook (org-mode . (lambda () (org-bullets-mode 1)))
-    )
 
   (use-package org-super-agenda
     :after org
@@ -735,7 +731,30 @@ Perspectives and similar
          ))))
     ;; invoking this externally with
     ;;   /opt/local/bin/emacs -batch -l ~/.emacs.d/init.el -Q -eval '(org-batch-agenda "P")'
-    :init
+
+    :hook
+    (org-mode . variable-pitch-mode)
+    (org-mode . visual-line-mode)
+    (org-mode . org-super-agenda-mode)
+    :custom-face
+    (org-block ((t (:inherit fixed-pitch))))
+    (org-code ((t (:inherit (shadow fixed-pitch)))))
+    (org-document-info ((t (:foreground "dark orange"))))
+    (org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+    (org-document-title ((t (:inherit variable-pitch :height 2.0 :underline nil))))
+    (org-indent ((t (:inherit (org-hide variable-pitch)))))
+    (org-level-1 ((t (:inherit variable-pitch :height 1.5))))
+    (org-level-2 ((t (:inherit variable-pitch :height 1.25))))
+    (org-level-3 ((t (:inherit variable-pitch :height 1.1))))
+    (org-level-4 ((t (:inherit variable-pitch :height 1.05))))
+    (org-link ((t (:foreground "royal blue" :underline t))))
+    (org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+    (org-property-value ((t (:inherit fixed-pitch :underline t))))
+    (org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+    (org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+    (org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+    (org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+
     :config
     (org-babel-do-load-languages
      'org-babel-load-languages
@@ -768,28 +787,9 @@ Perspectives and similar
     (use-package ox-md :straight (:type built-in))
     (require 'org-crypt)
     (org-crypt-use-before-save-magic)
-    :hook
-    (org-mode . variable-pitch-mode)
-    (org-mode . visual-line-mode)
-    (org-mode . org-super-agenda-mode)
-    :custom-face
-    (org-block ((t (:inherit fixed-pitch))))
-    (org-code ((t (:inherit (shadow fixed-pitch)))))
-    (org-document-info ((t (:foreground "dark orange"))))
-    (org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-    (org-document-title ((t (:inherit variable-pitch :height 2.0 :underline nil))))
-    (org-indent ((t (:inherit (org-hide variable-pitch)))))
-    (org-level-1 ((t (:inherit variable-pitch :height 1.5))))
-    (org-level-2 ((t (:inherit variable-pitch :height 1.25))))
-    (org-level-3 ((t (:inherit variable-pitch :height 1.1))))
-    (org-level-4 ((t (:inherit variable-pitch :height 1.05))))
-    (org-link ((t (:foreground "royal blue" :underline t))))
-    (org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-    (org-property-value ((t (:inherit fixed-pitch :underline t))))
-    (org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-    (org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-    (org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-    (org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+    ;;
+    (use-package org-superstar
+      :hook (org-mode . (lambda () (org-superstar-mode 1))))
     )
 
   (defun org-roam-node-insert-immediate (arg &rest args)
