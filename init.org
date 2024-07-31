@@ -598,15 +598,37 @@ Perspectives and similar
     :disabled t
     )
 
+  (use-package transient)
 
   (use-package persp-mode
+    :after transient
     :custom
     (persp-autokill-buffer-on-remove 'kill-weak)
     (persp-state-default-file (concat user-emacs-directory (convert-standard-filename ".emacs-perspective-save")))
     :hook
     (emacs-startup . (lambda () (persp-mode 1)))
     (kill-emacs . persp-save-state-to-file)
-  )  
+    :config
+    (transient-define-prefix pmw/persp-prefix ()
+      "Perspective transient menu"
+      ["Perspectives"
+       [ "A"
+        ("s" "create/switch perspective" persp-frame-switch)
+        ("r" "rename perspective" persp-rename)
+        ("c" "copy perspective" persp-copy)]
+       [ "B"
+  	("b" "switch to buffer in perspective" persp-switch-to-buffer)
+  	("k" "remove buffer from perspective" persp-remove-buffer)]
+       [ "C"
+  	("n" "next perspective" persp-next)
+  	("p" "previous perspective" persp-prev)
+  	("o" "terminate persp-mode" (lambda () (interactive) (persp-mode -1)))]
+       ]
+      )
+    :bind
+    ("C-c p j" . pmw/persp-prefix)
+    )  
+
 
   (use-package saveplace
     :config
