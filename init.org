@@ -145,7 +145,7 @@ Here we start to get into some more dirty stuff.
   (when (display-graphic-p)
     (setq pmw/default-font "Source Code Pro"))
 
-  (when (string-match (system-name) "MAC133962") ;; ORNL laptop
+  (when (string-match (system-name) "mac138104") ;; ORNL laptop
     (setq
      pmw/variable-pitch-font "Trebuchet MS"
      pmw/default-font-height (if (<= (display-pixel-width) 2500) 100 120)
