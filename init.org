@@ -4,6 +4,9 @@
 #+startup: fold
 :END:
 
+#+title: GNU Emacs configuration
+#+startup: content indent
+
 * Messy startup things
 
 ** Get the package system started right
@@ -287,6 +290,7 @@ We start with the emacs pseudo-package to do some miscellaneous settings
   	inhibit-startup-message t
   	scroll-step 1
   	auto-window-vscroll nil
+  	scroll-bar-mode -1
           ;;
           ;; fix for weird emacs 28.2 / Apple compiler issue
   	native-comp-driver-options (when (eq system-type 'darwin) '("-Wl,-w"))
@@ -325,115 +329,133 @@ We start with the emacs pseudo-package to do some miscellaneous settings
 ** Color theming, cursors, other look-and-feel
 
 #+begin_src emacs-lisp
-    (use-package sublime-themes )
-    (use-package cyberpunk-theme )
-    (use-package color-theme-modern 
+      (use-package sublime-themes )
+      (use-package cyberpunk-theme )
+      (use-package color-theme-modern 
+        :config
+;;        (load-theme 'cyberpunk t) ;; let auto-dark decide
+        )
+
+  (use-package auto-dark
+    :ensure t
+    :custom
+    (auto-dark-themes '((cyberpunk) (leuven)))
+    (auto-dark-allow-osascript t)
+    :hook
+    (auto-dark-dark-mode
+     . (lambda ()
+         ;; maybe do something when dark mode
+         ))
+    (auto-dark-light-mode
+     . (lambda ()
+         ;; maybe do something when light mode
+         ))
+    :init
+    (auto-dark-mode))
+         
+  (use-package moody
+    :disabled t
+    :config
+    (moody-replace-mode-line-front-space)
+    (moody-replace-mode-line-buffer-identification)
+    (moody-replace-vc-mode))
+
+  (use-package minions
+    :disabled nil
+    :config (minions-mode 1))
+
+  (use-package awesome-tray
+    :straight (:host github :repo "manateelazycat/awesome-tray")
+    :custom
+    (awesome-tray-second-line 1)
+    :config
+    (awesome-tray-mode 1))
+  		    
+
+  (use-package f )
+  (use-package popup )
+      
+    (use-package autofit-frame
+      :custom
+      (autofit-frames-flag nil)
       :config
-      (load-theme 'cyberpunk t)
+      (add-hook 'after-make-frame-functions 'fit-frame)
       )
 
-    (use-package cursor-chg
-    :config
-    (change-cursor-mode 1)
-    (toggle-cursor-type-when-idle 1)
-    (curchg-change-cursor-when-idle-interval 5)
-    )
+    (use-package hexrgb
+      :if (display-graphic-p)
+      )
 
-    (use-package rainbow-mode
-    :custom
-    (rainbow-x-colors nil)
-    :hook prog-mode
-    )
+      
+    (use-package mwheel
+      :straight (:type built-in)
+      :custom
+      (mouse-wheel-scroll-amount '(1
+    			       ((shift) . 5)
+    			       ((control))))
+      (mouse-wheel-progressive-speed nil))
 
-    (use-package f )
-  (use-package popup )
-    
-  (use-package autofit-frame
-    :custom
-    (autofit-frames-flag nil)
-    :config
-    (add-hook 'after-make-frame-functions 'fit-frame)
-    )
-
-  (use-package hexrgb
-    :if (display-graphic-p)
-    )
-
-    
-  (use-package mwheel
-    :straight (:type built-in)
-    :custom
-    (mouse-wheel-scroll-amount '(1
-  			       ((shift) . 5)
-  			       ((control))))
-    (mouse-wheel-progressive-speed nil))
-
-  (use-package pixel-scroll
-    :straight (:type built-in)
-    :config
-    (pixel-scroll-mode))
+    (use-package pixel-scroll
+      :straight (:type built-in)
+      :config
+      (pixel-scroll-precision-mode))
 
 
 
-  (use-package spacious-padding
-    :custom
-    (spacious-padding-subtle-mode-line
-     `( :mode-line-active 'default
-        :mode-line-inactive vertical-border))
-    ;; these are default values from the package documentation
-    (spacious-padding-widths
-     `( :internal-border-width 15
-        :header-line-width 4
-        :mode-line-width 4
-        :tab-width 4
-        :right-divider-width 30
-        :scroll-bar-width 8
-        :fringe-width 8))
-    :config
-    (spacious-padding-mode 1)
-    )
+    (use-package spacious-padding
+      :disabled t
+      :custom
+      (spacious-padding-subtle-mode-line
+       `( :mode-line-active 'default
+          :mode-line-inactive vertical-border))
+      ;; these are default values from the package documentation
+      (spacious-padding-widths
+       `( :internal-border-width 15
+          :header-line-width 4
+          :mode-line-width 4
+          :tab-width 4
+          :right-divider-width 30
+          :scroll-bar-width 8
+          :fringe-width 8))
+      :config
+      (spacious-padding-mode 1)
+      )
 
 
-  ;; minimap
+    ;; minimap
 
-  (use-package all-the-icons
-    :if (display-graphic-p)
-    )
+    (use-package all-the-icons
+      :if (display-graphic-p)
+      )
 
-  (use-package centaur-tabs
-    :disabled t
-    :demand
-    
-    :bind
-    (("C-<prior>" . centaur-tabs-backward)
-     ("C-<next>" . centaur-tabs-forward))
-    :custom
-    (centaur-tabs-style "bar")
-    (centaur-tabs-set-icons t)
-    (centaur-tabs-set-bar 'under)
-    (x-underline-at-descent-line t)
-    (centaur-tabs-height 24)
-    (centaur-tabs-set-modified-marker t)
-    :config
-    (centaur-tabs-mode t)
-    ;;  (centaur-tabs-headline-match)
-    ;;  (centaur-tabs-change-fonts "arial" 120)
-    (centaur-tabs-group-by-projectile-project)
-    )
+    (use-package centaur-tabs
+      :disabled t
+      :demand
+      
+      :bind
+      (("C-<prior>" . centaur-tabs-backward)
+       ("C-<next>" . centaur-tabs-forward))
+      :custom
+      (centaur-tabs-style "bar")
+      (centaur-tabs-set-icons t)
+      (centaur-tabs-set-bar 'under)
+      (x-underline-at-descent-line t)
+      (centaur-tabs-height 24)
+      (centaur-tabs-set-modified-marker t)
+      :config
+      (centaur-tabs-mode t)
+      ;;  (centaur-tabs-headline-match)
+      ;;  (centaur-tabs-change-fonts "arial" 120)
+      (centaur-tabs-group-by-projectile-project)
+      )
 
 
-  (use-package smartparens
-    
-    :config
-    ;;;(smartparens-global-mode f)
-    )
+    (use-package smartparens
+      
+      :config
+      ;;;(smartparens-global-mode f)
+      )
 
-  ;; modeline / line number stuff
-  (use-package telephone-line
-    
-    :config
-    (telephone-line-mode 1)
-    )
 
 #+end_src
 
@@ -546,48 +568,165 @@ Here's the old Ivy config for reference. I doubt I'll go back to it now.
 Now I'm trying to figure out how to work with vertico.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package vertico)
-  (use-package vertico-posframe
-    :after (vertico posframe)
-    :custom
-    (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
-    :config
-    (vertico-posframe-mode 1)
-    )
-  (use-package orderless
-    :ensure t
-    :custom
-    (completion-styles '(orderless basic))
-    (matching-styles '(orderless flex))
-    (completion-category-overrides '((file (styles basic partial-completion))))
-    )
-  (use-package embark)
-  (use-package marginalia)
+    (use-package vertico
+      :ensure t
+      :config
+      (vertico-mode 1))
+    (use-package vertico-posframe
+      :disabled t
+      :after (vertico posframe)
+      :custom
+      (vertico-posframe-parameters '((left-fringe . 8) (right-fringe . 8)))
+      :config
+      (vertico-posframe-mode 1)
+      )
+    (use-package orderless
+      :ensure t
+      :custom
+      (completion-styles '(orderless basic))
+      (matching-styles '(orderless flex))
+      (completion-category-overrides '((file (styles basic partial-completion))))
+      )
+    (use-package embark)
+    (use-package embark-consult
+      :after (embark consult)
+      :ensure t)
+    (use-package marginalia
+      :ensure t
+      :config
+      (marginalia-mode 1))
 
-  (use-package corfu
-    ;; Optional customizations
-    ;; :custom
-    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-    ;; (corfu-auto t)                 ;; Enable auto completion
-    ;; (corfu-separator ?\s)          ;; Orderless field separator
-    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+  ;; Example configuration for Consult
+  (use-package consult
+    ;; Replace bindings. Lazily loaded by `use-package'.
+    :bind (;; C-c bindings in `mode-specific-map'
+           ("C-c M-x" . consult-mode-command)
+           ("C-c h" . consult-history)
+           ("C-c k" . consult-kmacro)
+           ("C-c m" . consult-man)
+           ("C-c i" . consult-info)
+           ([remap Info-search] . consult-info)
+           ;; C-x bindings in `ctl-x-map'
+           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+           ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+           ;; M-g bindings in `goto-map'
+           ("M-g e" . consult-compile-error)
+           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+           ("M-g g" . consult-goto-line)             ;; orig. goto-line
+           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings in `search-map'
+           ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+           ("M-s c" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
-    ;; Enable Corfu only for certain modes.
-    ;; :hook ((prog-mode . corfu-mode)
-    ;;        (shell-mode . corfu-mode)
-    ;;        (eshell-mode . corfu-mode))
+    ;; Enable automatic preview at point in the *Completions* buffer. This is
+    ;; relevant when you use the default completion UI.
+    :hook (completion-list-mode . consult-preview-at-point-mode)
 
-    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-    ;; be used globally (M-/).  See also the customization variable
-    ;; `global-corfu-modes' to exclude certain modes.
+    ;; The :init configuration is always executed (Not lazy)
     :init
-    (global-corfu-mode)
-    )
+
+    ;; Optionally configure the register formatting. This improves the register
+    ;; preview for `consult-register', `consult-register-load',
+    ;; `consult-register-store' and the Emacs built-ins.
+    (setq register-preview-delay 0.5
+          register-preview-function #'consult-register-format)
+
+    ;; Optionally tweak the register preview window.
+    ;; This adds thin lines, sorting and hides the mode line of the window.
+    (advice-add #'register-preview :override #'consult-register-window)
+
+    ;; Use Consult to select xref locations with preview
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+
+    ;; Configure other variables and modes in the :config section,
+    ;; after lazily loading the package.
+    :config
+
+    ;; Optionally configure preview. The default value
+    ;; is 'any, such that any key triggers the preview.
+    ;; (setq consult-preview-key 'any)
+    ;; (setq consult-preview-key "M-.")
+    ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+    ;; For some commands and buffer sources it is useful to configure the
+    ;; :preview-key on a per-command basis using the `consult-customize' macro.
+    (consult-customize
+     consult-theme :preview-key '(:debounce 0.2 any)
+     consult-ripgrep consult-git-grep consult-grep
+     consult-bookmark consult-recent-file consult-xref
+     consult--source-bookmark consult--source-file-register
+     consult--source-recent-file consult--source-project-recent-file
+     ;; :preview-key "M-."
+     :preview-key '(:debounce 0.4 any))
+
+    ;; Optionally configure the narrowing key.
+    ;; Both < and C-+ work reasonably well.
+    (setq consult-narrow-key "<") ;; "C-+"
+
+    ;; Optionally make narrowing help available in the minibuffer.
+    ;; You may want to use `embark-prefix-help-command' or which-key instead.
+    ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+  )
+
+
+    (use-package corfu
+      ;; Optional customizations
+      ;; :custom
+      ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+      ;; (corfu-auto t)                 ;; Enable auto completion
+      ;; (corfu-separator ?\s)          ;; Orderless field separator
+      ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+      ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+      ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+      ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+      ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+      ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+      ;; Enable Corfu only for certain modes.
+      ;; :hook ((prog-mode . corfu-mode)
+      ;;        (shell-mode . corfu-mode)
+      ;;        (eshell-mode . corfu-mode))
+
+      ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+      ;; be used globally (M-/).  See also the customization variable
+      ;; `global-corfu-modes' to exclude certain modes.
+      :init
+      (global-corfu-mode)
+      )
 
 #+end_src
 
@@ -637,10 +776,10 @@ Perspectives and similar
 
     (use-package multiple-cursors 
     :bind
-    ("C-c m c"   . mc/edit-lines)
-    ("C-c m <"   . mc/mark-next-like-this)
-    ("C-c m >"   . mc/mark-previous-like-this)
-    ("C-c m C-<" . mc/mark-all-like-this))
+    (("C-c z c"   . mc/edit-lines)
+     ("C-c z <"   . mc/mark-next-like-this)
+     ("C-c z >"   . mc/mark-previous-like-this)
+     ("C-c z C-<" . mc/mark-all-like-this)))
 
     ;; dired+ / bookmark+ / desktop
   (use-package dired+
@@ -723,6 +862,7 @@ Perspectives and similar
     (org-refile-use-outline-path t)
     (org-refile-allow-creating-parent-nodes (quote confirm))
     (org-indirect-buffer-display 'current-window)
+    (org-fontify-whole-heading-line t)
     (org-log-into-drawer t)
     ;; set ditaa JAR path to work with org/babel (http://sourceforge.net/projects/ditaa/)
     (org-ditaa-jar-path pmw/org-ditaa-jar-directory)
@@ -810,8 +950,6 @@ Perspectives and similar
     (require 'org-crypt)
     (org-crypt-use-before-save-magic)
     ;;
-    (use-package org-superstar
-      :hook (org-mode . (lambda () (org-superstar-mode 1))))
     )
 
   (defun org-roam-node-insert-immediate (arg &rest args)
@@ -1132,6 +1270,12 @@ For me, this includes things like treemacs, magit, etc.
   (use-package apples-mode
   :straight (:host github :repo "rprimus/apples-mode")
   )
+
+  (use-package keycast
+    :disabled nil
+    :config
+    (keycast-mode-line-mode 1))
+
 
 #+end_src
 
