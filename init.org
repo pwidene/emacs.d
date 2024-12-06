@@ -322,7 +322,8 @@ We start with the emacs pseudo-package to do some miscellaneous settings
     ;; 		       (use-local-map (copy-keymap (current-local-map))))
     ;; 		     (when server-buffer-clients
     ;; 		       (local-set-key (kbd "C-x k") 'server-edit))))
-
+    :custom
+    (ispell-program-name "/opt/local/bin/aspell")
     )
 #+end_src
 
@@ -461,55 +462,56 @@ We start with the emacs pseudo-package to do some miscellaneous settings
 
 ** LaTeX setup
 #+begin_src emacs-lisp
-  (use-package bibtex
-    :custom
-    (bibtex-dialect 'biblatex)
-    )
+    (use-package bibtex
+      :custom
+      (bibtex-dialect 'biblatex)
+      )
 
-  (use-package tex
-    :straight auctex
-    :custom
-    (TeX-auto-save t)
-    (TeX-parse-self t)
+    (use-package tex
+      :straight auctex
+      :custom
+      (TeX-auto-save t)
+      (TeX-parse-self t)
+      :config
+      (setq-default TeX-master nil)
+
+      :hook (LaTeX-mode . (lambda ()
+    			(auto-fill-mode)
+    			(setq TeX-command-default "Latexmk"
+  			  safe-local-variable-values '((TeX-master . main.tex)))
+    			'turn-on-reftex
+    			(visual-line-mode)
+    			(set-fill-column 105)))    
+      )
+
+    (use-package auctex-latexmk
+      :requires auctex
+      )
+
+    (use-package pdf-tools
+    :after (tablist)
     :config
-    (setq-default TeX-master nil)
-    :hook (LaTeX-mode . (lambda ()
-  			(auto-fill-mode)
-  			(setq TeX-command-default "Latexmk")
-  			'turn-on-reftex
-  			(visual-line-mode)
-  			(set-fill-column 105)))
-    
+    (pdf-loader-install)
     )
 
-  (use-package auctex-latexmk
-    :requires auctex
+  (use-package biblio
+    :custom
+    (biblio-crossref-user-email-address "widenerpm@ornl.gov")
+    )
+  (use-package citar
+    :custom
+    (citar-bibliography '("~/work/bib/references.bib" "~/Documents/cv/pubs/pubs.bib"))
+    :hook
+    (LaTeX-mode . citar-capf-setup)
+    (org-mode . citar-capf-setup)
+    )
+  (use-package citar-embark
+    :after citar embark
+    :no-require
+    :config (citar-embark-mode)
     )
 
-  (use-package pdf-tools
-  :after (tablist)
-  :config
-  (pdf-loader-install)
-  )
-
-(use-package biblio
-  :custom
-  (biblio-crossref-user-email-address "widenerpm@ornl.gov")
-  )
-(use-package citar
-  :custom
-  (citar-bibliography '("~/work/bib/references.bib" "~/Documents/cv/pubs/pubs.bib"))
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode . citar-capf-setup)
-  )
-(use-package citar-embark
-  :after citar embark
-  :no-require
-  :config (citar-embark-mode)
-  )
-
-    
+      
 #+end_src
 
 ** Completing-read packages
@@ -789,6 +791,8 @@ Perspectives and similar
 
   (use-package bookmark+
     :disabled t
+    :init
+    (bmkp-last-as-first-bookmark-file (concat user-emacs-directory (convert-standard-filename "bookmarks")))
     :custom
     (bmkp-desktop-jump-save-before-flag t)
     :config
@@ -805,6 +809,7 @@ Perspectives and similar
     )
 
 #+end_src
+
 
 ** Org and friends
 #+begin_src emacs-lisp
@@ -863,6 +868,7 @@ Perspectives and similar
     (org-refile-allow-creating-parent-nodes (quote confirm))
     (org-indirect-buffer-display 'current-window)
     (org-fontify-whole-heading-line t)
+    (org-src-fontify-natively t)
     (org-log-into-drawer t)
     ;; set ditaa JAR path to work with org/babel (http://sourceforge.net/projects/ditaa/)
     (org-ditaa-jar-path pmw/org-ditaa-jar-directory)
@@ -1237,6 +1243,8 @@ For me, this includes things like treemacs, magit, etc.
     (show-smartparens-mode 1)
     :hook
     (c-mode-common . display-line-numbers-mode)
+    :custom-face 
+    (line-number (( t :background "#FFFFFF")))
     )
 
   (use-package go-mode
@@ -1252,6 +1260,9 @@ For me, this includes things like treemacs, magit, etc.
   (use-package json-mode
     :mode "\\.json\\'")
   (use-package plantuml-mode
+    :config
+    (plantuml-default-exec-mode 'executable)
+    (plantuml-executable-path "/opt/local/bin/plantuml")
     :mode "\\.uml\\'")
   (use-package yaml-mode
     :mode "\\.yaml\\'")
