@@ -811,269 +811,6 @@ Perspectives and similar
 #+end_src
 
 
-** Org and friends
-#+begin_src emacs-lisp
-    (use-package deft
-    :disabled t
-    :custom
-    (deft-directory pmw/deft-directory)
-    (deft-use-file-name-as-title t)
-    (deft-use-filter-string-for-filename t)
-    (deft-extension "org")
-    (deft-default-extension "org")
-    (deft-text-mode 'org-mode)
-    )
-
-
-
-  (use-package epa-file
-    :straight (:type built-in)
-    :config
-    (epa-file-enable)
-    )
-
-
-  (use-package org-super-agenda
-    :after org
-    :custom
-    (org-super-agenda-groups
-     '(
-       (:name "Radar"
-  	    :todo ("ACTIVITY" "RADAR")
-  	    :deadline nil)
-       (:name "Deadlines"
-  	    :deadline t)
-       (:name "Undated"
-  	    :todo ("TODO")
-  	    :deadline nil)
-       )))
-
-
-  (use-package org
-    :after epa-file 
-    :bind
-    ("C-c a" . org-agenda)
-    ("C-c c" . org-capture)
-    :custom
-    (org-directory pmw/org-directory)
-    (org-agenda-files (quote (concat pmw/org-directory (convert-standard-filename "journal.org"))))
-    (org-agenda-show-all-dates nil)
-    (org-agenda-prefix-format '((agenda . " %i %?-12t% s")
-  			      (todo . " %?-12t% s")
-  			      (tags . " %i %-12:c")
-  			      (search . " %i %-12:c")))
-    (org-crypt-key nil)
-    (org-hide-emphasis-markers t)
-    (org-refile-use-outline-path t)
-    (org-refile-allow-creating-parent-nodes (quote confirm))
-    (org-indirect-buffer-display 'current-window)
-    (org-fontify-whole-heading-line t)
-    (org-src-fontify-natively t)
-    (org-log-into-drawer t)
-    ;; set ditaa JAR path to work with org/babel (http://sourceforge.net/projects/ditaa/)
-    (org-ditaa-jar-path pmw/org-ditaa-jar-directory)
-    (org-tags-exclude-from-inheritance (quote ("crypt")))
-    (org-todo-keywords '((sequence "TODO" "|" "DONE")
-  		       (sequence "ACTIVITY" "PAUSED" "|" "COMPLETED" "ABANDONED")))
-    (org-tag-alist '(("abet" . ?a)
-  		   ("h4s" . ?h)
-  		   ("pmem" . ?p)
-  		   ("sandreport" . ?s)
-  		   ("storage" . nil)
-  		   ("hpda" . nil)
-  		   ("rvma" . nil)
-  		   ("sampra" . nil)
-  		   ("data-mgt" . nil)
-  		   ("faodel" . ?f)
-  		   ("recruiting" . nil)))
-    (org-capture-templates
-     '(("t" "New TODO" entry (file+olp+datetree "journal.org")
-        "* TODO %? %^g\n  %i\n  %a")
-       ("j" "New journal" entry (file+olp+datetree "journal.org")
-        "* %? %^g\n dated %t\n  %i\n  %a")))
-    (org-agenda-custom-commands
-     '(("P" "Agenda and radars"
-        ((agenda ""
-         ((org-agenda-span 15)))
-         (todo "ACTIVITY")
-         ))))
-    ;; invoking this externally with
-    ;;   /opt/local/bin/emacs -batch -l ~/.emacs.d/init.el -Q -eval '(org-batch-agenda "P")'
-
-    :hook
-    (org-mode . variable-pitch-mode)
-    (org-mode . visual-line-mode)
-    (org-mode . org-super-agenda-mode)
-    :custom-face
-    (org-block ((t (:inherit fixed-pitch))))
-    (org-code ((t (:inherit (shadow fixed-pitch)))))
-    (org-document-info ((t (:foreground "dark orange"))))
-    (org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-    (org-document-title ((t (:inherit variable-pitch :height 2.0 :underline nil))))
-    (org-indent ((t (:inherit (org-hide variable-pitch)))))
-    (org-level-1 ((t (:inherit variable-pitch :height 1.5))))
-    (org-level-2 ((t (:inherit variable-pitch :height 1.25))))
-    (org-level-3 ((t (:inherit variable-pitch :height 1.1))))
-    (org-level-4 ((t (:inherit variable-pitch :height 1.05))))
-    (org-link ((t (:foreground "royal blue" :underline t))))
-    (org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-    (org-property-value ((t (:inherit fixed-pitch :underline t))))
-    (org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-    (org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-    (org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-    (org-verbatim ((t (:inherit (shadow fixed-pitch)))))
-
-    :config
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((R . t)
-       (gnuplot . t)
-       (dot . t)
-       (ditaa . t)
-       (latex . t)
-       (ruby . t)
-       (python . t)
-       (emacs-lisp . t)
-       (plantuml . t)
-       ))
-    (with-eval-after-load 'ox-latex
-      (add-to-list 'org-latex-classes
-  		 ;; beamer class, for presentations
-  		 '("beamer")
-  		 '("letter"
-  		 "\\documentclass[11pt]{letter}\n
-        \\usepackage[utf8]{inputenc}\n
-        \\usepackage[T1]{fontenc}\n
-        \\usepackage{color}"
-  		 
-  		 ("\\section{%s}" . "\\section*{%s}")
-  		 ("\\subsection{%s}" . "\\subsection*{%s}")
-  		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-  		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-  		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-    ;;
-    (use-package ox-md :straight (:type built-in))
-    (require 'org-crypt)
-    (org-crypt-use-before-save-magic)
-    ;;
-    )
-
-  (defun org-roam-node-insert-immediate (arg &rest args)
-    (interactive "P")
-    (let ((args (cons arg args))
-  	(org-roam-capture-templates (list (append (car org-roam-capture-templates)
-  						  '(:immediate-finish t)))))
-      (apply #'org-roam-node-insert args)))
-
-  (use-package org-roam
-    :ensure t
-    :after org
-    :hook
-    (after-init . org-roam-setup)
-    (org-roam-backlinks-mode . visual-line-mode)
-    :init
-    (setq org-roam-v2-ack t
-  	org-roam-database-connector 'sqlite-builtin)
-    :custom
-    (org-roam-directory pmw/org-roam-directory)
-    (org-roam-tag-sources '(prop all-directories))
-    (org-roam-dailies-directory "daily/")
-
-    :bind (("C-c n l" . org-roam-buffer-toggle)
-  	 ("C-c n f" . org-roam-node-find)
-  	 ("C-c n g" . org-roam-graph)
-  	 ("C-c n i" . org-roam-node-insert)
-  	 ("C-c n I" . org-roam-node-insert-immediate)
-  	 :map org-roam-dailies-map
-  	 ("Y" . org-roam-dailies-capture-yesterday)
-  	 ("T" . org-roam-dailies-capture-tomorrow))
-    :bind-keymap
-    ("C-c n d" . org-roam-dailies-map)
-    :config
-    (require 'org-roam-export)
-    (require 'org-roam-dailies)
-    (org-roam-db-autosync-mode)
-    )
-
-  (use-package org-roam-ui
-    :ensure
-    :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :requires org-mode
-    :after org-roam
-    ;;:hook (after-init . org-roam-ui-mode)
-    :custom
-    (org-roam-ui-sync-theme t)
-    (org-roam-ui-follow t)
-    (org-roam-ui-update-on-save t)
-    (org-roam-ui-open-on-start t)
-    )
-
-  (use-package org-download
-    :after org
-    :bind
-    (:map org-mode-map
-  	(("s-Y" . org-download-screenshot)
-  	 ("s-y" . org-download-yank)))
-    )
-
-  (use-package org-modern
-    :after org
-    :config
-    (setq
-     org-auto-align-tags nil
-     org-tags-column 0
-     org-catch-invisible-edits 'show-and-error
-     org-special-crtl-a/e t
-     org-insert-heading-respect-content t
-
-     org-hide-emphasis-markers t
-     org-pretty-entities t
-     org-ellipsis "..."
-     )
-    (global-org-modern-mode)
-    )
-     
-    
-
-
-  (defun org-journal-find-location ()
-    ;; Open today's journal, but specify a non-nil prefix argument in order to
-    ;; inhibit inserting the heading; org-capture will insert the heading.
-    (org-journal-new-entry t)
-    (unless (eq org-journal-file-type 'daily)
-      (org-narrow-to-subtree))
-    (goto-char (point-max)))
-
-
-  (defvar org-journal--date-location-scheduled-time nil)
-
-  (defun org-journal-date-location (&optional scheduled-time)
-    (let ((scheduled-time (or scheduled-time (org-read-date nil nil nil "Date:"))))
-      (setq org-journal--date-location-scheduled-time scheduled-time)
-      (org-journal-new-entry t (org-time-string-to-time scheduled-time))
-      (unless (eq org-journal-file-type 'daily)
-        (org-narrow-to-subtree))
-      (goto-char (point-max))))
-
-  (use-package org-journal
-    :disabled f
-    :custom
-    (org-icalendar-store-UID t)
-    (org-icalendar-include-todo "all")
-    (org-icalendar-combined-agenda-file "~/org-journal.ics")
-    )
-
-  (use-package tablist)
-
-  (use-package org-noter)
-
-  (use-package htmlize
-    :custom
-    (org-html-htmlize-output-type 'css)
-    (org-html-htmlize-font-prefix "org-"))
-
-#+end_src
-
 ** Programming support
 For me, this includes things like treemacs, magit, etc.
 
@@ -1231,6 +968,18 @@ For me, this includes things like treemacs, magit, etc.
 
 
 
+*** Jupyter notebook support
+#+begin_src emacs_lisp
+
+  (use-package simple-httpd
+  :straight t)
+  (use-package jupyter
+  :straight t)
+  
+
+#+end_src
+
+
 ** Modes
 #+begin_src emacs-lisp
     (use-package gnuplot-mode
@@ -1289,6 +1038,276 @@ For me, this includes things like treemacs, magit, etc.
 
 
 #+end_src
+
+** Org and friends
+#+begin_src emacs-lisp
+        (use-package deft
+        :disabled t
+        :custom
+        (deft-directory pmw/deft-directory)
+        (deft-use-file-name-as-title t)
+        (deft-use-filter-string-for-filename t)
+        (deft-extension "org")
+        (deft-default-extension "org")
+        (deft-text-mode 'org-mode)
+        )
+
+
+
+      (use-package epa-file
+        :straight (:type built-in)
+        :config
+        (epa-file-enable)
+        )
+
+
+      (use-package org-super-agenda
+        :after org
+        :custom
+        (org-super-agenda-groups
+         '(
+           (:name "Radar"
+      	    :todo ("ACTIVITY" "RADAR")
+      	    :deadline nil)
+           (:name "Deadlines"
+      	    :deadline t)
+           (:name "Undated"
+      	    :todo ("TODO")
+      	    :deadline nil)
+           )))
+
+  (use-package conda
+    :custom
+    (conda-anaconda-home (expand-file-name "~/proj/miniforge3/"))
+    :config
+    (conda-env-initialize-interactive-shells)
+    (conda-env-initialize-eshell)
+    :hook
+    (find-file . (lambda () (when (bound-and-true-p conda-project-env-path)
+  			    (conda-env-activate-for-buffer))))
+    )
+  (use-package jupyter)
+
+
+      (use-package org
+        :after epa-file 
+        :bind
+        ("C-c a" . org-agenda)
+        ("C-c c" . org-capture)
+        :custom
+        (org-directory pmw/org-directory)
+        (org-agenda-files (quote (concat pmw/org-directory (convert-standard-filename "journal.org"))))
+        (org-agenda-show-all-dates nil)
+        (org-agenda-prefix-format '((agenda . " %i %?-12t% s")
+      			      (todo . " %?-12t% s")
+      			      (tags . " %i %-12:c")
+      			      (search . " %i %-12:c")))
+        (org-crypt-key nil)
+        (org-hide-emphasis-markers t)
+        (org-refile-use-outline-path t)
+        (org-refile-allow-creating-parent-nodes (quote confirm))
+        (org-indirect-buffer-display 'current-window)
+        (org-fontify-whole-heading-line t)
+        (org-src-fontify-natively t)
+        (org-log-into-drawer t)
+        ;; set ditaa JAR path to work with org/babel (http://sourceforge.net/projects/ditaa/)
+        (org-ditaa-jar-path pmw/org-ditaa-jar-directory)
+        (org-tags-exclude-from-inheritance (quote ("crypt")))
+        (org-todo-keywords '((sequence "TODO" "|" "DONE")
+      		       (sequence "ACTIVITY" "PAUSED" "|" "COMPLETED" "ABANDONED")))
+        (org-tag-alist '(("abet" . ?a)
+      		   ("data-mgt" . nil)
+      		   ("recruiting" . nil)))
+        (org-capture-templates
+         '(("t" "New TODO" entry (file+olp+datetree "journal.org")
+            "* TODO %? %^g\n  %i\n  %a")
+           ("j" "New journal" entry (file+olp+datetree "journal.org")
+            "* %? %^g\n dated %t\n  %i\n  %a")))
+        (org-agenda-custom-commands
+         '(("P" "Agenda and radars"
+            ((agenda ""
+             ((org-agenda-span 15)))
+             (todo "ACTIVITY")
+             ))))
+        ;; invoking this externally with
+        ;;   /opt/local/bin/emacs -batch -l ~/.emacs.d/init.el -Q -eval '(org-batch-agenda "P")'
+
+        :hook
+        (org-mode . variable-pitch-mode)
+        (org-mode . visual-line-mode)
+        (org-mode . org-super-agenda-mode)
+        :custom-face
+        (org-block ((t (:inherit fixed-pitch))))
+        (org-code ((t (:inherit (shadow fixed-pitch)))))
+        (org-document-info ((t (:foreground "dark orange"))))
+        (org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+        (org-document-title ((t (:inherit variable-pitch :height 2.0 :underline nil))))
+        (org-indent ((t (:inherit (org-hide variable-pitch)))))
+        (org-level-1 ((t (:inherit variable-pitch :height 1.5))))
+        (org-level-2 ((t (:inherit variable-pitch :height 1.25))))
+        (org-level-3 ((t (:inherit variable-pitch :height 1.1))))
+        (org-level-4 ((t (:inherit variable-pitch :height 1.05))))
+        (org-link ((t (:foreground "royal blue" :underline t))))
+        (org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+        (org-property-value ((t (:inherit fixed-pitch :underline t))))
+        (org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+        (org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+        (org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+        (org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+
+        :config
+        (org-babel-do-load-languages
+         'org-babel-load-languages
+         '((R . t)
+           (gnuplot . t)
+           (dot . t)
+           (ditaa . t)
+           (latex . t)
+           (ruby . t)
+           (python . t)
+           (emacs-lisp . t)
+           (plantuml . t)
+           (jupyter . t)
+           ))
+        (with-eval-after-load 'ox-latex
+          (add-to-list 'org-latex-classes
+      		 ;; beamer class, for presentations
+      		 '("beamer")
+      		 '("letter"
+      		 "\\documentclass[11pt]{letter}\n
+            \\usepackage[utf8]{inputenc}\n
+            \\usepackage[T1]{fontenc}\n
+            \\usepackage{color}"
+      		 
+      		 ("\\section{%s}" . "\\section*{%s}")
+      		 ("\\subsection{%s}" . "\\subsection*{%s}")
+      		 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+      		 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+      		 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+        ;;
+        (use-package ox-md :straight (:type built-in))
+        (require 'org-crypt)
+        (org-crypt-use-before-save-magic)
+        ;;
+        )
+
+      (defun org-roam-node-insert-immediate (arg &rest args)
+        (interactive "P")
+        (let ((args (cons arg args))
+      	(org-roam-capture-templates (list (append (car org-roam-capture-templates)
+      						  '(:immediate-finish t)))))
+          (apply #'org-roam-node-insert args)))
+
+      (use-package org-roam
+        :ensure t
+        :after org
+        :hook
+        (after-init . org-roam-setup)
+        (org-roam-backlinks-mode . visual-line-mode)
+        :init
+        (setq org-roam-v2-ack t
+      	org-roam-database-connector 'sqlite-builtin)
+        :custom
+        (org-roam-directory pmw/org-roam-directory)
+        (org-roam-tag-sources '(prop all-directories))
+        (org-roam-dailies-directory "daily/")
+
+        :bind (("C-c n l" . org-roam-buffer-toggle)
+      	 ("C-c n f" . org-roam-node-find)
+      	 ("C-c n g" . org-roam-graph)
+      	 ("C-c n i" . org-roam-node-insert)
+      	 ("C-c n I" . org-roam-node-insert-immediate)
+      	 :map org-roam-dailies-map
+      	 ("Y" . org-roam-dailies-capture-yesterday)
+      	 ("T" . org-roam-dailies-capture-tomorrow))
+        :bind-keymap
+        ("C-c n d" . org-roam-dailies-map)
+        :config
+        (require 'org-roam-export)
+        (require 'org-roam-dailies)
+        (org-roam-db-autosync-mode)
+        )
+
+      (use-package org-roam-ui
+        :ensure
+        :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+        :requires org-mode
+        :after org-roam
+        ;;:hook (after-init . org-roam-ui-mode)
+        :custom
+        (org-roam-ui-sync-theme t)
+        (org-roam-ui-follow t)
+        (org-roam-ui-update-on-save t)
+        (org-roam-ui-open-on-start t)
+        )
+
+      (use-package org-download
+        :after org
+        :bind
+        (:map org-mode-map
+      	(("s-Y" . org-download-screenshot)
+      	 ("s-y" . org-download-yank)))
+        )
+
+      (use-package org-modern
+        :after org
+        :config
+        (setq
+         org-auto-align-tags nil
+         org-tags-column 0
+         org-catch-invisible-edits 'show-and-error
+         org-special-crtl-a/e t
+         org-insert-heading-respect-content t
+
+         org-hide-emphasis-markers t
+         org-pretty-entities t
+         org-ellipsis "..."
+         )
+        (global-org-modern-mode)
+        )
+         
+        
+
+
+      (defun org-journal-find-location ()
+        ;; Open today's journal, but specify a non-nil prefix argument in order to
+        ;; inhibit inserting the heading; org-capture will insert the heading.
+        (org-journal-new-entry t)
+        (unless (eq org-journal-file-type 'daily)
+          (org-narrow-to-subtree))
+        (goto-char (point-max)))
+
+
+      (defvar org-journal--date-location-scheduled-time nil)
+
+      (defun org-journal-date-location (&optional scheduled-time)
+        (let ((scheduled-time (or scheduled-time (org-read-date nil nil nil "Date:"))))
+          (setq org-journal--date-location-scheduled-time scheduled-time)
+          (org-journal-new-entry t (org-time-string-to-time scheduled-time))
+          (unless (eq org-journal-file-type 'daily)
+            (org-narrow-to-subtree))
+          (goto-char (point-max))))
+
+      (use-package org-journal
+        :disabled f
+        :custom
+        (org-icalendar-store-UID t)
+        (org-icalendar-include-todo "all")
+        (org-icalendar-combined-agenda-file "~/org-journal.ics")
+        )
+
+      (use-package tablist)
+
+      (use-package org-noter)
+
+      (use-package htmlize
+        :custom
+        (org-html-htmlize-output-type 'css)
+        (org-html-htmlize-font-prefix "org-"))
+
+#+end_src
+
+
 
 ** Odds and ends
 #+begin_src emacs-lisp
